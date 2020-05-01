@@ -224,6 +224,8 @@ class Window(arcade.Window):
             # Get inputs for perceptron
             distance = SCREEN_WIDTH
             height = SCREEN_HEIGHT # obstacle height
+            width = 0
+
             if len(self.obstacle_list) != 0:
                 next_obstacle_index = 0
                 while next_obstacle_index < len(self.obstacle_list) and self.obstacle_list[next_obstacle_index].center_x <= self.runner.center_x:
@@ -232,13 +234,16 @@ class Window(arcade.Window):
                 if next_obstacle_index < len(self.obstacle_list):
                     distance = self.obstacle_list[next_obstacle_index].get_distance()
                     height = self.obstacle_list[next_obstacle_index].center_y
+                    width = self.obstacle_list[next_obstacle_index].width
 
             global SPEED, MAX_SPEED
+
             distance /= SCREEN_WIDTH
+            width /= SCREEN_WIDTH
             height /= SCREEN_HEIGHT
             speed = SPEED / MAX_SPEED
             player_y = self.runner.center_y / SCREEN_HEIGHT
-            inputs = [speed, distance, height, player_y]
+            inputs = [speed, distance, width, height, player_y]
 
             decision = self.agent.get_index(inputs)
 
@@ -253,7 +258,7 @@ class Window(arcade.Window):
                 self.time_since_last_spawn = 0
 
             self.runner.on_update(delta_time)
-            self.runner.update_animation(delta_time)
+            # self.runner.update_animation(delta_time)
             self.obstacle_list.on_update(delta_time)
 
             if len(self.runner.collides_with_list(self.obstacle_list)) > 0:

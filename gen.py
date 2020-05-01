@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import game, perceptron, arcade
 import pickle
 from pathlib import Path
-import signal
-from contextlib import contextmanager
 
 class GA:
     def __init__(self, n, p, mp, rp, fitness_func):
@@ -142,32 +140,16 @@ class GA:
 
 
 def fit_func(genotype):
-    agent = perceptron.MultilayerPerceptron([genotype[0], genotype[1], genotype[2], genotype[3]], [genotype[4], genotype[5], genotype[6], genotype[7]])
+    agent = perceptron.MultilayerPerceptron([genotype[0], genotype[1], genotype[2], genotype[3], genotype[4]], [genotype[5], genotype[6], genotype[7], genotype[8], genotype[9]])
     window = game.Window()
-    window.setup(agent, False)
+    window.setup(agent, True)
     arcade.run()
 
     print(window.score)
     return window.score
 
-@contextmanager
-def timeout(time):
-    signal.signal(signal.SIGALRM, raise_timeout)
 
-    signal.alarm(time)
-
-    try:
-        yield
-    except TimeoutError:
-        pass
-    finally:
-        signal.signal(signal.SIGALRM, signal.SIG_IGN)
-
-def raise_timeout(signum, frame):
-    raise TimeoutError
-
-
-gen_alg = GA(8, 20, .2, .2, fit_func)
+gen_alg = GA(10, 20, .08, .5, fit_func)
 gen_alg.load_generation()
-for i in range(360):
+for i in range(1000):
     gen_alg.tournament()
