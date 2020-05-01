@@ -15,7 +15,6 @@ SPEED = 800
 ACCELERATION = 20
 MAX_SPEED = 3000
 
-
 SPRITE_SHEET = {
         "STILL_RUNNER": {"x": 40, "y": 12, "w": 44, "h": 36},
         "RUNNER": {"x": 536, "y": 11, "w": 40, "h": 36, "offset": 3},
@@ -146,6 +145,7 @@ class Obstacle(arcade.Sprite):
                 h += SPRITE_SHEET["CROUCHED_RUNNER"]["h"] * 2
             else:
                 h += SPRITE_SHEET["RUNNER"]["h"] * 4
+            
         else:
             size = random.randint(0, 1)
 
@@ -179,34 +179,31 @@ class Window(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
         arcade.set_background_color(open_color.white)
 
-    def setup(self, agent, should_draw):
+    def setup(self):
         """Set up required sprites and data."""
         global SPEED
 
-        self.game_over= False
-        self.should_draw = should_draw
         SPEED = STARTING_SPEED
         self.set_update_rate(1 / 60)
+        self.game_over = False
         self.runner = Runner()
         self.score = 0
-        self.max_time = 200
-        self.agent = agent
+        self.max_time = 150
         self.obstacle_list = arcade.SpriteList()
         self.time_since_last_spawn = OBSTACLE_INTERVAL
 
     def on_draw(self):
         """Called when the window needs to be drawn."""
-        if self.should_draw:
-            arcade.start_render()
-            self.runner.draw()
-            self.obstacle_list.draw()
+        arcade.start_render()
+        self.runner.draw()
+        self.obstacle_list.draw()
 
-            arcade.draw_text(f'{self.score}', SCREEN_WIDTH - 90, SCREEN_HEIGHT - 20, open_color.black, 15, bold = True)
+        arcade.draw_text(f'{self.score}', SCREEN_WIDTH - 90, SCREEN_HEIGHT - 20, open_color.black, 15, bold = True)
 
-            if self.game_over:
-                arcade.draw_text("GAME OVER", SCREEN_WIDTH / 2 -90, SCREEN_HEIGHT / 2 - 15, open_color.black, 30, bold = True)
+        if self.game_over:
+            arcade.draw_text("GAME OVER", SCREEN_WIDTH / 2 -90, SCREEN_HEIGHT / 2 - 15, open_color.black, 30, bold = True)
 
-            arcade.finish_render()
+        arcade.finish_render()
 
 
     def on_update(self, delta_time):
@@ -214,38 +211,6 @@ class Window(arcade.Window):
         if not self.game_over:
             # Increase score
             self.score += delta_time
-
-            # Don't let game last too long:
-            if (self.score > self.max_time):
-                self.game_over = True
-                arcade.close_window()
-                return
-
-            # Get inputs for perceptron
-            distance = SCREEN_WIDTH
-            height = SCREEN_HEIGHT # obstacle height
-            if len(self.obstacle_list) != 0:
-                next_obstacle_index = 0
-                while next_obstacle_index < len(self.obstacle_list) and self.obstacle_list[next_obstacle_index].center_x <= self.runner.center_x:
-                    next_obstacle_index += 1
-                
-                if next_obstacle_index < len(self.obstacle_list):
-                    distance = self.obstacle_list[next_obstacle_index].get_distance()
-                    height = self.obstacle_list[next_obstacle_index].center_y
-
-            global SPEED, MAX_SPEED
-            distance /= SCREEN_WIDTH
-            height /= SCREEN_HEIGHT
-            speed = SPEED / MAX_SPEED
-            player_y = self.runner.center_y / SCREEN_HEIGHT
-            inputs = [speed, distance, height, player_y]
-
-            decision = self.agent.get_index(inputs)
-
-            if decision == 1:
-                self.runner.toggle_jump(True)
-            else:
-                self.runner.toggle_jump(False)
 
             self.time_since_last_spawn += delta_time
             if self.time_since_last_spawn >= OBSTACLE_INTERVAL:
@@ -258,17 +223,21 @@ class Window(arcade.Window):
 
             if len(self.runner.collides_with_list(self.obstacle_list)) > 0:
                 self.game_over = True
-                arcade.close_window()
 
 
-    #def on_key_press(self, key, modifiers):
-        #if key == arcade.key.SPACE or key == arcade.key.W:
-            #self.runner.toggle_jump(True)
-        #if key == arcade.key.S:
-            #self.runner.toggle_down(True)
-#
-    #def on_key_release(self, key, modifiers):
-        #if key == arcade.key.SPACE or key == arcade.key.W:
-            #self.runner.toggle_jump(False)
-        #if key == arcade.key.S:
-            #self.runner.toggle_down(False)
+    def on_key_press(self, key, modifiers):
+        if key == arcade.key.SPACE or key == arcade.key.W:
+            self.runner.toggle_jump(True)
+        if key == arcade.key.S:
+            self.runner.toggle_down(True)
+
+    def on_key_release(self, key, modifiers):
+        if key == arcade.key.SPACE or key == arcade.key.W:
+            self.runner.toggle_jump(False)
+        if key == arcade.key.S:
+            self.runner.toggle_down(False)
+
+
+window = Window()
+window.setup()
+arcade.run()

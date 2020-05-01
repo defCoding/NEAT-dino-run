@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import game, perceptron, arcade
 import pickle
 from pathlib import Path
+import signal
+from contextlib import contextmanager
 
 class GA:
     def __init__(self, n, p, mp, rp, fitness_func):
@@ -21,6 +23,8 @@ class GA:
         self.scores = []
         self.averages = []
         self.generations = []
+        self.best_in_generation = (None, 0)
+        self.num_best_saved = 1 # Number of best in generation saved.
 
     def mutate(self, genotype):
         for bit in range(self.n):
@@ -59,18 +63,15 @@ class GA:
         self.scores.append(fitness1)
         self.scores.append(fitness2)
 
-        if fitness1 > fitness2:
-            winner = self.pop[geno1]
-            loser = self.pop[geno2]
-        if fitness2 >= fitness1:
-            winner = self.pop[geno2]
-            loser = self.pop[geno1]
+        winner = (geno1, fitness1) if fitness1 > fitness2 else (geno2, fitness2)
+        loser = (geno2, fitness2) if fitness2 <= fitness1 else (geno1, fitness1)
 
-        loser = self.mutate(loser)
-        loser = self.recombination(winner, loser)
+        # Update best in generation.
+        if winner[1] > self.best_in_generation[1]:
+            self.best_in_generation = winner
 
-        self.pop[geno1] = winner
-        self.pop[geno2] = loser
+        self.pop[loser[0]] = self.mutate(self.pop[loser[0]])
+        self.pop[loser[0]] = self.recombination(self.pop[winner[0]], self.pop[loser[0]])
 
         self.tournament_count += 1
 
@@ -80,6 +81,18 @@ class GA:
             self.save_generation()
             self.scores = []
             self.tournament_count = 0
+
+            if self.num_best_saved ** 2 == len(self.generations):
+                print(f'Saved best in generation with score {self.best_in_generation[1]}.')
+                file_name = f'best_in_gen_{self.num_best_saved ** 2}.save'
+
+                with open(file_name, "wb") as save:
+                    pickle.dump(self.pop[self.best_in_generation[0]], save)
+                    save.close()
+
+                self.num_best_saved += 1
+
+            self.best_in_generation = (None, 0)
 
     def load_generation(self):
         file_name = "generations.save"
@@ -91,7 +104,6 @@ class GA:
                 self.generations = pickle.load(save)
                 self.pop = self.generations[len(self.generations) - 1]
                 save.close()
-                
 
         file_name = "averages.save"
         save_file = Path(file_name)
@@ -132,13 +144,30 @@ class GA:
 def fit_func(genotype):
     agent = perceptron.MultilayerPerceptron([genotype[0], genotype[1], genotype[2], genotype[3]], [genotype[4], genotype[5], genotype[6], genotype[7]])
     window = game.Window()
-    window.setup(agent)
+    window.setup(agent, False)
     arcade.run()
 
     print(window.score)
     return window.score
 
+@contextmanager
+def timeout(time):
+    signal.signal(signal.SIGALRM, raise_timeout)
+
+    signal.alarm(time)
+
+    try:
+        yield
+    except TimeoutError:
+        pass
+    finally:
+        signal.signal(signal.SIGALRM, signal.SIG_IGN)
+
+def raise_timeout(signum, frame):
+    raise TimeoutError
+
+
 gen_alg = GA(8, 20, .2, .2, fit_func)
 gen_alg.load_generation()
-for i in range(200):
+for i in range(360):
     gen_alg.tournament()
