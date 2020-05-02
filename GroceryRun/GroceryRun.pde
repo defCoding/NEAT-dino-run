@@ -23,9 +23,9 @@ PImage largeObstacles;
 PImage flyingObstacle;
 
 // Variables
-Random r = new Random();
+Random rand = new Random();
 int obstacleTimer = 0;
-int randInterval = r.nextInt(30); // Added to obstacle interval to vary spawn times.
+int randInterval = rand.nextInt(30); // Added to obstacle interval to vary spawn times.
 float speed = 11;
 boolean gameOver = false;
 
@@ -77,11 +77,11 @@ void updateObstacles() {
   if (obstacleTimer > OBSTACLE_INTERVAL + randInterval) {
     // If so, generate obstacle, and reset timer and recreate a random
     // interval to add to default interval.
-    Obstacle obs = new Obstacle();
+    Obstacle obs = new Obstacle(rand);
     obs.showHitbox = true;
     obstacleList.add(obs);
     obstacleTimer = 0;
-    randInterval = r.nextInt(30);
+    randInterval = rand.nextInt(30);
   }
 
   moveObstacles();

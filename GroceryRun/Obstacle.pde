@@ -7,8 +7,7 @@ class Obstacle extends Entity {
   boolean can_remove; // Checks if object can be removed from screen.
   int size; // Size of (ground) obstacle.
 
-  Obstacle() {
-    Random r = new Random();
+  Obstacle(Random r) {
     xPos = SCREENWIDTH;
     flying = r.nextInt(3) == 2; // 1 in 3 chance of being a flying obstacle.
 
