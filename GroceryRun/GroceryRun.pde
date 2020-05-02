@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 // Set constants
 final int FPS = 60;
@@ -7,8 +8,8 @@ final float SCREENWIDTH = 900;
 final float GROUNDHEIGHT = 20;
 final float JUMP_VEL = 13;
 final int OBSTACLE_INTERVAL = 60;
-final float MAX_SPEED = 200;
-final float ACCELERATION = 10;
+final float MAX_SPEED = 100;
+final float ACCELERATION = .5;
 
 // Sprites
 PImage regCart1;
@@ -22,8 +23,9 @@ PImage largeObstacles;
 PImage flyingObstacle;
 
 // Variables
+Random r = new Random();
 int obstacleTimer = 0;
-int randInterval = floor(random(30)); // Added to obstacle interval to vary spawn times.
+int randInterval = r.nextInt(30); // Added to obstacle interval to vary spawn times.
 float speed = 11;
 boolean gameOver = false;
 
@@ -48,6 +50,7 @@ void setup() {
   flyingObstacle = sprite_sheet.get(134, 12, 41, 28);
   
   player = new Runner();
+  player.showHitbox = true;
   obstacleList = new ArrayList<Obstacle>();
 
   // Setup Window
@@ -55,47 +58,61 @@ void setup() {
   frameRate(FPS);
 }
 
+// Called every frame.
 void draw() {
   if (!gameOver) {
     drawBackground();
-    player.show();
     player.move();
+    player.show();
     updateObstacles();
     gameOver = checkCollisions();
   }
 }
 
+// Increments obstacle timer, attempts to spawn an obstacle, and moves all obstacles.
 void updateObstacles() {
   obstacleTimer++;
 
+  // Check if we can spawn obstacle.
   if (obstacleTimer > OBSTACLE_INTERVAL + randInterval) {
-    obstacleList.add(new Obstacle());
+    // If so, generate obstacle, and reset timer and recreate a random
+    // interval to add to default interval.
+    Obstacle obs = new Obstacle();
+    obs.showHitbox = true;
+    obstacleList.add(obs);
     obstacleTimer = 0;
-    randInterval = floor(random(30));
+    randInterval = r.nextInt(30);
   }
 
   moveObstacles();
 }
 
+// Moves all obstacles.
 void moveObstacles() {
   for (int i = 0; i < obstacleList.size(); i++) {
     obstacleList.get(i).move(speed);
 
+    // Remove obstacle if it leaves the screen.
     if (obstacleList.get(i).can_remove) {
       obstacleList.remove(i);
       i--;
+
+      // If obstacle is removed, the game should get harder.
+      speed = Math.min(speed + ACCELERATION, MAX_SPEED);
     }
   }
 
   showObstacles();
 }
 
+// Draws all obstacles.
 void showObstacles() {
   for (Obstacle obstacle : obstacleList) {
     obstacle.show();
   }
 }
 
+// Check if player collides with any obstacle.
 boolean checkCollisions() {
   for (Obstacle obstacle : obstacleList) {
     if (player.collidesWith(obstacle)) {
@@ -109,7 +126,7 @@ boolean checkCollisions() {
 void drawBackground() {
   background(255);
   stroke(0);
-  strokeWeight(3);
+  strokeWeight(1);
   line(0, SCREENHEIGHT - GROUNDHEIGHT - 15, width, SCREENHEIGHT - GROUNDHEIGHT - 15);
 }
 

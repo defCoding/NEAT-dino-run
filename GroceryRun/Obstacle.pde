@@ -6,7 +6,6 @@ class Obstacle extends Entity {
   boolean small; // (Ground) obstacle is small.
   boolean can_remove; // Checks if object can be removed from screen.
   int size; // Size of (ground) obstacle.
-  PImage sprite;
 
   Obstacle() {
     Random r = new Random();
@@ -38,10 +37,10 @@ class Obstacle extends Entity {
       
       switch (height) {
         case 0:
-          yPos = GROUNDHEIGHT + h / 2;
+          yPos = 0;
           break;
         case 1:
-          yPos = regCart1.height;
+          yPos = regCart1.height - 5;
           break;
         case 2:
           yPos = regCart1.height * 2;
@@ -52,11 +51,9 @@ class Obstacle extends Entity {
     }
 
     w -= 3;
-    h -= 4;
-  }
+    h -= 2;
 
-  void show() {
-    image(sprite, xPos - w / 2, SCREENHEIGHT - GROUNDHEIGHT - (yPos + h));
+    showHitbox = false;
   }
 
   void move(float dx) {

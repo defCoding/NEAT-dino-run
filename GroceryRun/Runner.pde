@@ -10,15 +10,16 @@ class Runner extends Entity {
   
   Runner() {
     this.score = 0;
-    this.w = regCart1.width - 2;
-    this.h = regCart1.height - 2;
+    this.sprite = regCart1;
+    this.w = regCart1.width;
+    this.h = regCart1.height;
     this.xPos = w / 2 + 30;
     this.dx = 0;
     this.yPos = 0;
     this.dy = 0;
     this.gravity = def_gravity;
     this.down = false;
-    
+    this.showHitbox = false;
     this.animationFrame = 0;
   }
 
@@ -30,7 +31,6 @@ class Runner extends Entity {
  
   // Draws the Runner. 
   void show() {
-    PImage sprite;
     // Get correct animation sprite based on player crouch status and animation frame.
     if (down && yPos == 0) {
       sprite = animationFrame < 2 ? crouchedCart1 : crouchedCart2;
@@ -55,11 +55,10 @@ class Runner extends Entity {
     }
 
     w = sprite.width - 2;
-    h = sprite.height - 2;
-
-    image(sprite, xPos - w / 2, SCREENHEIGHT - GROUNDHEIGHT - (yPos + h));
-
+    h = sprite.height;
     animationFrame = (animationFrame + 1) % 4;
+
+    super.show();
   }
 
   // Moves Runner and checks for collisions.
