@@ -35,9 +35,9 @@ class Population {
       Runner newRunner = new Runner();
       newRunner.genome.mutate(innovationTracker, r);
       newRunner.genome.generateTopologicalNetwork();
-      pop.add(new Runner());
+      
+      pop.add(newRunner);
     }
-    
   }
 
   void setObstacleList(ArrayList<Obstacle> obstacles) {
@@ -95,6 +95,7 @@ class Population {
       for (Species species : speciesList) {
         if (species.isCompatible(runner.genome)) {
           species.addRunner(runner);
+          found = true;
           break;
         }
       }
@@ -180,21 +181,17 @@ class Population {
     float sumAvg = sumAvgFitness();
     ArrayList<Runner> childPop = new ArrayList<Runner>();
 
-    System.out.println("Going through species to find new children.");
     for (Species species : speciesList) {
       childPop.add(species.fittestAgent.copy());
 
       // Number of children from species is relative to its fitness score and the total fitness score.
       int numChildren = floor(species.avgFitness / sumAvg * pop.size()) - 1;
       
-      System.out.println("Adding Children from Species.");
       for (int i = 0; i < numChildren; i++) {
         childPop.add(species.generateChild(innovationTracker, r));
       }
-      System.out.println("Finished adding children from Species.");
     }
 
-    System.out.println("Finished going through species.");
     // Add more children if need be.
     while (childPop.size() < pop.size()) {
       childPop.add(speciesList.get(0).generateChild(innovationTracker, r));

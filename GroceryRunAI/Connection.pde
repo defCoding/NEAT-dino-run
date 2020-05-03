@@ -20,13 +20,13 @@ class Connection {
     // According to MIT paper, 90% chance of uniform perturbance, and 10% chance of
     // completely random weight.
     if (r.nextFloat() < 0.9) {
-      weight += r.nextGaussian() / 40; // Keep it small.
+      weight += r.nextGaussian() / 50; // Keep it small.
 
       // Bound weight to (-1, 1)
       weight = Math.min(1, weight);
       weight = Math.max(-1, weight);
     } else {
-      weight = r.nextInt(2) - 1;
+      weight = r.nextFloat() * 2 - 1;
     }
   }
 

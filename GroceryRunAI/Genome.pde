@@ -1,4 +1,6 @@
 import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
 
 class Genome {
   ArrayList<Connection> connectionList;
@@ -258,7 +260,7 @@ class Genome {
     for (Node node : neuralNetwork) {
       float nodeOutput = node.activate();
       for (Connection connection : connectionList) {
-        if (connection.inNode.label == node.label) {
+        if (connection.inNode.label == node.label && connection.enabled) {
           connection.outNode.inputVal += nodeOutput;
         }
       }
@@ -284,8 +286,6 @@ class Genome {
     neuralNetwork = new ArrayList<Node>();
 
     // Topological sort.
-    System.out.println("Total Nodes to generate network for: " + nodeList.size());
-    System.out.println("Layers: " + totalLayers);
     for (int i = 0; i < totalLayers; i++) {
       for (Node node : nodeList) {
         if (node.depth == i) {
@@ -324,5 +324,61 @@ class Genome {
     }
 
     return copy;
+  }
+  
+  void drawGenome(int x, int y, int w, int h) {
+      Map<Node, PVector> nodeToLocation = new HashMap<Node, PVector>();
+      Map<PVector, Number> numberForLocation = new HashMap<PVector, Number>();
+      ArrayList<ArrayList<Node>> nodesByLayer = new ArrayList<ArrayList<Node>>(totalLayers);
+
+      for (int i = 0; i < totalLayers; i++) {
+        nodesByLayer.add(new ArrayList<Node>());
+      }
+
+      for (Node node : nodeList) {
+        nodesByLayer.get(node.depth).add(node);
+      }
+      
+      for (int i = 0; i < totalLayers; i++) {
+        float xPos = x + ((float) w / totalLayers) * i;
+        ArrayList<Node> nodesInLayerI = nodesByLayer.get(i);
+        for (int j = 0; j < nodesInLayerI.size(); j++) {
+          float yPos = y + ((float) h / nodesInLayerI.size()) * j;
+          PVector pos = new PVector(xPos, yPos);
+          nodeToLocation.put(nodesInLayerI.get(j), pos);
+          numberForLocation.put(pos, nodesInLayerI.get(j).label);
+        }
+      }
+     
+      
+      for (Connection connection : connectionList) {
+        PVector in = nodeToLocation.get(connection.inNode);
+        PVector out = nodeToLocation.get(connection.outNode);
+        
+        if (connection.weight > 0) {
+          stroke(255, 0, 0);
+        } else {
+          stroke(0, 0, 255);
+        }
+        
+        if (!connection.enabled) {
+          stroke(171, 171, 171);
+        }
+        
+        strokeWeight(map(abs(connection.weight), 0, 1, 0, 3));
+        line(in.x, in.y, out.x, out.y);
+      }
+      
+
+      stroke(0);
+      strokeWeight(1);
+      textSize(8);
+      for (PVector pos : numberForLocation.keySet()) {
+        fill(255);
+        ellipse(pos.x, pos.y, 15, 15);
+        fill(0);
+        textAlign(CENTER, CENTER);
+        text(numberForLocation.get(pos) + "", pos.x, pos.y);
+      }
   }
 }

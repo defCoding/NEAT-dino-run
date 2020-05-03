@@ -3,7 +3,7 @@ import java.lang.Comparable;
 
 class Species implements Comparable<Species> {
   // Constant values.
-  static final float disjCoeff = 1;
+  static final float disjCoeff = 1.0;
   static final float weightCoeff = 0.4;
   static final float compatibilityThreshold = 3.0;
 
@@ -104,7 +104,7 @@ class Species implements Comparable<Species> {
     // float excessCoeff = 1;
 
     int normalizedGeneCount = Math.max(g1.connectionList.size(), g2.connectionList.size());
-    if (normalizedGeneCount < 20) {
+    if (normalizedGeneCount <= 20) {
       normalizedGeneCount = 1;
     } 
 
@@ -112,7 +112,7 @@ class Species implements Comparable<Species> {
     int excessDisjoint = countExcessDisjointGenes(g1, g2);
     float avgWeightDiff = calcAvgWeightDiff(g1, g2);
 
-    return excessDisjoint * disjCoeff / normalizedGeneCount + avgWeightDiff * weightCoeff / normalizedGeneCount;
+    return (excessDisjoint * disjCoeff) / normalizedGeneCount + avgWeightDiff * weightCoeff;
   }
 
   int countExcessDisjointGenes(Genome g1, Genome g2) {
@@ -151,7 +151,7 @@ class Species implements Comparable<Species> {
 
     // If there are no matches whatsoever, the average weight difference doesn't even matter.
     if (matchingCount == 0) {
-      return 1000;
+      return 100;
     }
 
     return sumOfDifference / matchingCount;

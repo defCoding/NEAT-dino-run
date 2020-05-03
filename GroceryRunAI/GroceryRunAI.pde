@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 // Set constants
-final int FPS = 60;
 final float SCREENHEIGHT = 400;
 final float SCREENWIDTH = 900;
 final float GROUNDHEIGHT = 20;
@@ -12,6 +11,7 @@ final float MAX_SPEED = 100;
 final float ACCELERATION = .5;
 final float STARTING_SPEED = 11;
 
+int FPS = 60;
 // Sprites
 PImage regCart1;
 PImage regCart2;
@@ -64,6 +64,9 @@ void draw() {
   if (!pop.isDead()) {
     updateObstacles();
     pop.updateAliveRunners();
+    if (pop.speciesList.size() > 0) {
+      pop.speciesList.get(0).runnerList.get(0).genome.drawGenome(50, 20, 300, 150);
+    }
   } else {
     System.out.println("Preparing new Generation.");
     pop.commenceEvolution();
@@ -127,4 +130,19 @@ void resetGame() {
   speed = STARTING_SPEED;
   obstacleTimer = 0;
   randInterval = rand.nextInt(30);
+}
+
+
+void keyPressed() {
+  switch (key) {
+    case '+':
+      FPS += 10;
+      System.out.println("FPS: " + FPS);
+      break;
+    case '-':
+      FPS -= 10;
+      System.out.println("FPS: " + FPS);
+      break;
+    default:   
+  }
 }

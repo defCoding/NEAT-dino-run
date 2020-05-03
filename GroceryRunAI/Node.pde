@@ -13,18 +13,34 @@ class Node {
   float activate() {
     // Inputs and bias don't apply sigmoid.
     if (depth != 0) {
-      return sigmoid(inputVal);
+      outputVal = sigmoid(inputVal);
     } else {
-      return 0;
+      outputVal = 0;
     }
+    
+    return outputVal;
   }
 
   float sigmoid(float input) {
     // MIT paper uses modified sigmoid function. (-4.5x instead of -x)
     return 1 / (1 + (float) Math.pow(Math.E, -4.5 * input));
   }
+  
+  boolean equals(Object other) {
+    if (other instanceof Node) {
+      Node otherNode = (Node) other;
+      return label == otherNode.label;
+    }
+    return false;
+  }
+  
+  int hashCode() {
+    return new Integer(label).hashCode();
+  }
 
   Node copy() {
-    return new Node(label);
+    Node copy =new Node(label);
+    copy.depth = depth;
+    return copy;
   }
 }

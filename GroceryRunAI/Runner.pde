@@ -145,7 +145,7 @@ class Runner extends Entity implements Comparable<Runner> {
     }
 
     if (nextObstacle != null) {
-      inputVals[0] = nextObstacle.xPos / SCREENWIDTH;
+      inputVals[0] = 1 / (nextObstacle.xPos / 10.0);
       inputVals[1] = nextObstacle.yPos;
       inputVals[2] = nextObstacle.h;
       inputVals[3] = nextObstacle.w;
@@ -173,6 +173,11 @@ class Runner extends Entity implements Comparable<Runner> {
         decisionIndex = i;
       }
     }
+    
+    if (max < 0.7) {
+      toggleDown(false);
+      return;
+    }
 
     switch (decisionIndex) {
       case 0: // Jump
@@ -190,9 +195,7 @@ class Runner extends Entity implements Comparable<Runner> {
   // Does genome crossover between this Runner and another runner to make a child runner.
   Runner crossover(Runner other, Random r) {
     Runner child = new Runner();
-    System.out.println("CROSSING OVER");
     child.genome = genome.crossover(other.genome, r);
-    System.out.println("FINISHED CROSSING OVER");
     child.genome.generateTopologicalNetwork();
     return child;
   }
