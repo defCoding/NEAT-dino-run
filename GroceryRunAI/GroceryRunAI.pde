@@ -3,13 +3,13 @@ import java.util.Random;
 
 // Set constants
 final float SCREENHEIGHT = 400;
-final float SCREENWIDTH = 900;
+final float SCREENWIDTH = 1200;
 final float GROUNDHEIGHT = 20;
 final float JUMP_VEL = 13;
-final int OBSTACLE_INTERVAL = 60;
+final int OBSTACLE_INTERVAL = 45;
 final float MAX_SPEED = 100;
-final float ACCELERATION = .5;
-final float STARTING_SPEED = 11;
+final float ACCELERATION = .05;
+final float STARTING_SPEED = 8;
 
 int FPS = 60;
 // Sprites
@@ -27,7 +27,7 @@ PImage flyingObstacle;
 Random rand = new Random();
 int obstacleTimer = 0;
 int randInterval = rand.nextInt(30); // Added to obstacle interval to vary spawn times.
-float speed = 11;
+float speed = 8;
 
 Population pop;
 ArrayList<Obstacle> obstacleList;
@@ -65,9 +65,7 @@ void draw() {
     updateObstacles();
     pop.updateAliveRunners();
     
-    if (pop.fittestAgent != null) {
-      pop.fittestAgent.genome.drawGenome(50, 20, 300, 150);
-    }
+    pop.drawAMember();
   } else {
     System.out.println("Preparing new Generation.");
     pop.commenceEvolution();
@@ -143,6 +141,7 @@ void keyPressed() {
       break;
     case '-':
       FPS -= 10;
+      FPS = Math.max(FPS, 10);
       frameRate(FPS);
       System.out.println("FPS: " + FPS);
       break;

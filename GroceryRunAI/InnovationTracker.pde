@@ -10,6 +10,10 @@ class InnovationTracker {
     nextInnovationNumber = 0;
   }
   
+  void reset() {
+    connectionInnovation.clear();
+  }
+  
   void setInnovationNumber(Connection connection) {
     if (!connectionInnovation.containsKey(connection)) {
       connectionInnovation.put(connection, nextInnovationNumber++);

@@ -33,9 +33,9 @@ class Population {
     
     for (int i = 0; i < size; i++) {
       Runner newRunner = new Runner();
-      newRunner.genome.mutate(innovationTracker, r);
-      newRunner.genome.generateTopologicalNetwork();
       
+      newRunner.genome.generateTopologicalNetwork();
+      newRunner.genome.mutate(innovationTracker, r);
       pop.add(newRunner);
     }
   }
@@ -51,8 +51,8 @@ class Population {
     for (Runner runner : pop) {
       if (runner.alive) {
         // Read the screen and have the runner decide what to do.
-        runner.decide(runner.readInput(obstacleList));
-        runner.update(obstacleList);
+        runner.decide(runner.readInput());
+        runner.update();
         runner.show();
       }
     }
@@ -73,13 +73,17 @@ class Population {
   void setFittestAgent() {
     sortAllSpecies();
 
-    Runner bestRightNow = speciesList.get(0).runnerList.get(0);
-    bestRightNow.genNum = genNum;
-
-    if (bestRightNow.score > highScore) {
-      bestOfGenerations.add(bestRightNow);
-      highScore = bestRightNow.score;
-      fittestAgent = bestRightNow;
+    if (speciesList.get(0).runnerList.size() > 0) {
+      Runner bestRightNow = speciesList.get(0).runnerList.get(0);
+      bestRightNow.genNum = genNum;
+  
+      if (bestRightNow.score > highScore) {
+        bestOfGenerations.add(bestRightNow);
+        System.out.println("Old High Score: " + highScore);
+        System.out.println("New High Score: " + bestRightNow.score);
+        highScore = bestRightNow.score;
+        fittestAgent = bestRightNow;
+      }
     }
   }
 
@@ -112,8 +116,8 @@ class Population {
   // Remove all species who have not improved in 15 generations (page 111)
   void removeStaleSpecies() {
     // At least save 2 so that we can keep growing the population.
-    for (int i = 2; i < speciesList.size(); i++) {
-      if (speciesList.get(i).staleFactor >= 15) {
+    for (int i = 4; i < speciesList.size(); i++) {
+      if (speciesList.get(i).staleFactor >= 18) {
         speciesList.remove(i--);
       }
     }
@@ -125,6 +129,7 @@ class Population {
       species.genocide();
       species.shareFitness();
       species.setAvgFitness();
+      isSorted = false;
     }
   }
 
@@ -174,9 +179,7 @@ class Population {
     setFittestAgent();
     removeStaleSpecies();
     removeNonreproducingSpecies();
-
-    System.out.printf("Generation: %d | Pop Size: %d | # Mutations: %d | # Species: %d\n", genNum, pop.size(), innovationTracker.size(), speciesList.size());
-
+    
     // Create next generation.
     float sumAvg = sumAvgFitness();
     ArrayList<Runner> childPop = new ArrayList<Runner>();
@@ -186,7 +189,7 @@ class Population {
 
       // Number of children from species is relative to its fitness score and the total fitness score.
       int numChildren = floor(species.avgFitness / sumAvg * pop.size()) - 1;
-      
+    
       for (int i = 0; i < numChildren; i++) {
         childPop.add(species.generateChild(innovationTracker, r));
       }
@@ -196,7 +199,8 @@ class Population {
     while (childPop.size() < pop.size()) {
       childPop.add(speciesList.get(0).generateChild(innovationTracker, r));
     }
-
+    
+    System.out.printf("Generation: %d | Pop Size: %d | # Mutations: %d | # Species: %d\n", genNum, pop.size(), innovationTracker.size(), speciesList.size());
     pop = childPop;
     isSorted = false;
     genNum++;
@@ -205,6 +209,7 @@ class Population {
     }
    
     lifespan = 0;
+    innovationTracker.reset();
   }
 
   // Removes species that can no longer reproduce due to poor performance.
@@ -215,6 +220,18 @@ class Population {
       if (speciesList.get(i).avgFitness / sumAvg * pop.size() < 1) {
         speciesList.remove(i);
         i--;
+      }
+    }
+    isSorted = false;
+  }
+
+  void drawAMember() {
+    for (Runner runner : pop) {
+      if (runner.alive) {
+        textSize(12);
+        text("Some Alive Player's Neural Network", 100, 20);
+        runner.genome.drawGenome(180, 40, 350, 200);
+        break;
       }
     }
   }

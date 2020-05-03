@@ -2,7 +2,7 @@ abstract class Entity {
   float xPos, yPos;
   float dx, dy;
   float w, h;
-  boolean showHitbox;
+  boolean showHitbox, targeted;
   PImage sprite;
 
   // Subclasses should call super class show() AFTER setting up sprites.
@@ -12,6 +12,9 @@ abstract class Entity {
     if (showHitbox) {
       noFill();
       stroke(0, 0, 255);
+      if (targeted) {
+        stroke(255, 0, 0);
+      }
       strokeWeight(1);
       rect(xPos - w / 2, SCREENHEIGHT - GROUNDHEIGHT - (yPos + h), w, h);
     }

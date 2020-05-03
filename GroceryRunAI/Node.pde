@@ -14,8 +14,6 @@ class Node {
     // Inputs and bias don't apply sigmoid.
     if (depth != 0) {
       outputVal = sigmoid(inputVal);
-    } else {
-      outputVal = 0;
     }
     
     return outputVal;
@@ -23,7 +21,7 @@ class Node {
 
   float sigmoid(float input) {
     // MIT paper uses modified sigmoid function. (-4.5x instead of -x)
-    return 1 / (1 + (float) Math.pow((float) Math.E, -4.5 * input));
+    return 1 / (1 + pow((float) Math.E, -4.5 * input));
   }
   
   boolean equals(Object other) {

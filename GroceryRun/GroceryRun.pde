@@ -6,8 +6,8 @@ final int FPS = 60;
 final float SCREENHEIGHT = 400;
 final float SCREENWIDTH = 900;
 final float GROUNDHEIGHT = 20;
-final float JUMP_VEL = 13;
-final int OBSTACLE_INTERVAL = 60;
+final float JUMP_VEL = 14;
+final int OBSTACLE_INTERVAL = 45;
 final float MAX_SPEED = 100;
 final float ACCELERATION = .5;
 
@@ -26,7 +26,7 @@ PImage flyingObstacle;
 Random rand = new Random();
 int obstacleTimer = 0;
 int randInterval = rand.nextInt(30); // Added to obstacle interval to vary spawn times.
-float speed = 11;
+float speed = 9;
 boolean gameOver = false;
 
 Runner player;

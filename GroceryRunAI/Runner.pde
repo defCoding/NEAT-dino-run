@@ -1,5 +1,6 @@
 import java.lang.Error;
 import java.lang.Comparable;
+import java.util.Arrays;
 
 class Runner extends Entity implements Comparable<Runner> {
   final static float def_gravity = -1.2;
@@ -8,14 +9,15 @@ class Runner extends Entity implements Comparable<Runner> {
   float gravity;
   boolean down; // Player is pressing down key.
   boolean alive; // Player is alive.
-
   int animationFrame; // For animation.
 
   // For NEAT algorithm.
-  final int genomeInputSize = 6;
+  final int genomeInputSize = 7;
   final int genomeOutputSize = 3; // 3 options
   Genome genome;
   float fitness;
+  
+  int lastAction = -2;
   
   Runner() {
     score = 0;
@@ -30,6 +32,7 @@ class Runner extends Entity implements Comparable<Runner> {
     alive = true;
     down = false;
     showHitbox = false;
+    targeted = false;
     animationFrame = 0;
     genome = new Genome(genomeInputSize, genomeOutputSize);
     fitness = 0;
@@ -37,9 +40,9 @@ class Runner extends Entity implements Comparable<Runner> {
   }
 
   // Called every frame.
-  void update(ArrayList<Obstacle> obstacleList) {
+  void update() {
     updateCounters();
-    checkCollisions(obstacleList);
+    checkCollisions();
     move();
   }
  
@@ -76,7 +79,7 @@ class Runner extends Entity implements Comparable<Runner> {
   }
 
   // Check if player collides with any obstacle.
-  void checkCollisions(ArrayList<Obstacle> obstacleList) {
+  void checkCollisions() {
     for (Obstacle obstacle : obstacleList) {
       if (collidesWith(obstacle)) {
         alive = false;
@@ -116,48 +119,64 @@ class Runner extends Entity implements Comparable<Runner> {
   }
 
   // If the player can jump, jump.
-  void jump() {
+  void jump(boolean smallHop) {
     gravity = def_gravity;
     down = false;
     if (yPos == 0) {
-      dy = JUMP_VEL;
+      if (!smallHop) {
+        dy = JUMP_VEL;
+      } else {
+        dy = JUMP_VEL - 4;
+      }
     }
   }
 
   // Get input for NEAT.
-  float[] readInput(ArrayList<Obstacle> obstacleList) {
+  float[] readInput() {
     // Inputs are as follows:
     // 1. Distance from next obstacle.
     // 2. yPos of obstacle.
     // 3. Height of obstacle.
     // 4. Width of obstacle.
     // 5. Speed of obstacles.
-    // 6. yPos of player.
-
-    Obstacle nextObstacle = null;
+    // 6. Interval of obstacle after.
+    // 7. yPos of player.
     float[] inputVals = new float[genomeInputSize];
 
-    for (Obstacle obstacle : obstacleList) {
-      if (obstacle.xPos - obstacle.w / 2 > xPos + w / 2) {
-        nextObstacle = obstacle;
-        break;
+    Obstacle nextObstacle = null;
+    Obstacle nextNextObstacle = null;
+    
+    for (int i = 0; i < obstacleList.size(); i++) {
+      Obstacle thisObstacle = obstacleList.get(i);
+      if (thisObstacle.xPos - thisObstacle.w / 2 > xPos + w / 2) {
+         nextObstacle = thisObstacle;
+         
+         if (i < obstacleList.size() - 1) {
+           nextNextObstacle = obstacleList.get(i + 1);
+         }
       }
     }
     
-    
 
     if (nextObstacle != null) {
-      inputVals[0] = 1 / (nextObstacle.xPos / 12.0);
+      nextObstacle.targeted = true;
+      inputVals[0] = 1 / (nextObstacle.xPos) * 10;
       inputVals[1] = nextObstacle.yPos;
       inputVals[2] = nextObstacle.h;
       inputVals[3] = nextObstacle.w;
       inputVals[4] = speed;
+      if (nextNextObstacle != null && nextNextObstacle != nextObstacle) {
+        nextNextObstacle.targeted = true;
+        inputVals[5] = 1 / (nextNextObstacle.xPos - nextObstacle.xPos);
+      } else {
+        inputVals[5] = 0;
+      }
     } else {
-      for (int i = 0; i < 5; i++) { 
+      for (int i = 0; i < 6; i++) { 
         inputVals[i] = 0;
       }
     }
-    inputVals[5] = yPos;
+    inputVals[6] = yPos;
 
     return inputVals;
   }
@@ -174,16 +193,21 @@ class Runner extends Entity implements Comparable<Runner> {
         decisionIndex = i;
       }
     }
+    
+    if (max < 0.6) {
+      toggleDown(false);
+      return;
+    }
 
     switch (decisionIndex) {
       case 0: // Do nothing
-        toggleDown(false);
+        toggleDown(true);
         break;
       case 1: // Jump
-        jump();
+        jump(true);
         break;
       case 2: // Crouch
-        toggleDown(true);
+        jump(false);
         break;
       default:
         throw new Error("Invalid decision.");

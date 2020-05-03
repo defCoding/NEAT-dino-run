@@ -93,7 +93,7 @@ class Runner extends Entity {
     gravity = def_gravity;
     down = false;
     if (yPos == 0) {
-      dy = JUMP_VEL;
+      dy = JUMP_VEL - 4;
     }
   }
 }

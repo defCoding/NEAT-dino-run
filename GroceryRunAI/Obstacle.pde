@@ -9,11 +9,11 @@ class Obstacle extends Entity {
 
   Obstacle(Random r) {
     xPos = SCREENWIDTH;
-    flying = r.nextInt(3) == 2; // 1 in 3 chance of being a flying obstacle.
+    flying = r.nextInt(4) == 3; // 1 in 4 chance of being a flying obstacle.
 
     if (!flying) {
       yPos = 0;
-      small = r.nextBoolean(); // 50% chance of being a small obstacle.
+      small = r.nextInt(3) < 2; // 66% chance of being a small obstacle.
       
       if (small) {
         size = r.nextInt(3); // Group size of 1 - 3.
@@ -21,7 +21,7 @@ class Obstacle extends Entity {
         w = sprite.width;
         h = sprite.height;
       } else {
-        size = r.nextInt(4); // Group size of 1 - 4.
+        size = r.nextInt(2); // Group size of 1 - 2.
         sprite = largeObstacles.get(0, 0, 23 + size * 26, 46);
         w = sprite.width;
         h = sprite.height;
@@ -53,6 +53,7 @@ class Obstacle extends Entity {
     h -= 2;
 
     showHitbox = false;
+    targeted = false;
   }
 
   void move(float dx) {

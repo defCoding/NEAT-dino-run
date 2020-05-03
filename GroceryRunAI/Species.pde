@@ -3,8 +3,8 @@ import java.lang.Comparable;
 
 class Species implements Comparable<Species> {
   // Constant values.
-  static final float disjCoeff = 1.0;
-  static final float weightCoeff = 0.4;
+  static final float disjCoeff = 1;
+  static final float weightCoeff = 0.5;
   static final float compatibilityThreshold = 3.0;
 
   ArrayList<Runner> runnerList;
@@ -71,13 +71,13 @@ class Species implements Comparable<Species> {
 
   // New generation has passed so update staleFactor.
   void updateStaleness() {
+    sortSpecies(); 
+
     // If the species is empty, then we should get rid of it.
     if (runnerList.size() == 0) {
       staleFactor = 9001; // OVER 9000!!!
       return;
     }
-
-    sortSpecies(); 
 
     // Check for improvement.
     if (runnerList.get(0).fitness > bestFitness) {
@@ -151,7 +151,7 @@ class Species implements Comparable<Species> {
 
     // If there are no matches whatsoever, the average weight difference doesn't even matter.
     if (matchingCount == 0) {
-      return 100;
+      return 200;
     }
 
     return sumOfDifference / matchingCount;
@@ -162,14 +162,15 @@ class Species implements Comparable<Species> {
   // recombination.
   Runner generateChild(InnovationTracker innovationTracker, Random r) {
     Runner child;
-    if (r.nextFloat() < 0.2) {
+    if (r.nextFloat() < 0.25) {
       child = pickParentWeighted(r);
     } else {
       Runner parentA, parentB;
-
-      // We have to allow for same parent because sometimes the species will be size 1.
       parentA = pickParentWeighted(r);
-      parentB = pickParentWeighted(r);
+
+      do {
+        parentB = pickParentWeighted(r);
+      } while (runnerList.size() > 2 && parentA == parentB);
 
       // crossover method requires that the fitter parent is the caller of the method
       Runner moreFit = parentA.fitness >= parentB.fitness ? parentA : parentB;
@@ -184,6 +185,7 @@ class Species implements Comparable<Species> {
 
   // Pick a random parent, but biased towards more fit parents.
   Runner pickParentWeighted(Random r) {
+    /*
     sortSpecies();
     
     float gaussianVal = (float) r.nextGaussian();
@@ -200,6 +202,24 @@ class Species implements Comparable<Species> {
     int randomIndex = Math.abs(runnerList.size() - floor(gaussianVal)) % runnerList.size();
 
     return runnerList.get(randomIndex);
+    */
+    float totalFitness = 0;
+
+    for (Runner runner : runnerList) {
+      totalFitness += runner.fitness;
+    }
+
+    float threshold = r.nextFloat() * totalFitness;
+    float cumulativeSum = 0;
+    for (Runner runner : runnerList) {
+      cumulativeSum += runner.fitness;
+
+      if (cumulativeSum >= threshold) {
+        return runner;
+      }
+    }
+
+    return null;
   }
 
   // Shares fitness among members of a species to avoid culling unique members. This equation can
