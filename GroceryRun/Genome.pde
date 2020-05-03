@@ -234,9 +234,10 @@ class Genome {
 
           break;
         }
+
+        // Add connection to child.
+        child.connectionList.add(childConnection);
       }
-      // Add connection to child.
-      child.connectionList.add(childConnection);
     }
     
     return child;
@@ -294,35 +295,5 @@ class Genome {
     }
     
     return network;
-  }
-
-  // Clones this genome.
-  Genome copy() {
-    Genome copy = new Genome();
-    copy.inputSize = inputSize;
-    copy.outputSize = outputSize;
-
-    Map<Node, Node> parentToCopy = new HashMap<Node, Node>();
-
-    // Copy over nodes.
-    for (Node node : nodeList) {
-      Node copiedNode = node.copy();
-      if (node.label == biasNode.label) {
-        copy.biasNode = copiedNode;
-      }
-
-      copy.nodeList.add(copiedNode);
-      parentToCopy.put(node, copiedNode);
-    }
-
-    // Copy over connections.
-    for (Connection connection : connectionList) {
-      Connection copyConnection = new Connection(parentToCopy.get(connection.inNode), parentToCopy.get(connection.outNode), connection.weight, connection.innovation);
-      copyConnection.enabled = connection.enabled;
-
-      copy.connectionList.add(copyConnection);
-    }
-
-    return copy;
   }
 }

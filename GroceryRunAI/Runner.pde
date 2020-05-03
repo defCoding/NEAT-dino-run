@@ -1,26 +1,35 @@
 import java.lang.Error;
+import java.lang.Comparable;
 
-class Runner extends Entity {
+class Runner extends Entity implements Comparable<Runner> {
   final static float def_gravity = -1.2;
   int score;
   float gravity;
   boolean down; // Player is pressing down key.
 
   int animationFrame; // For animation.
+
+  // For NEAT algorithm.
+  final int genomeInputSize = 6;
+  final int genomeOutputSize = 3; // 3 options
+  Genome genome;
+  float fitness;
   
   Runner() {
-    this.score = 0;
-    this.sprite = regCart1;
-    this.w = regCart1.width;
-    this.h = regCart1.height;
-    this.xPos = w / 2 + 30;
-    this.dx = 0;
-    this.yPos = 0;
-    this.dy = 0;
-    this.gravity = def_gravity;
-    this.down = false;
-    this.showHitbox = false;
-    this.animationFrame = 0;
+    score = 0;
+    sprite = regCart1;
+    w = regCart1.width;
+    h = regCart1.height;
+    xPos = w / 2 + 30;
+    dx = 0;
+    yPos = 0;
+    dy = 0;
+    gravity = def_gravity;
+    down = false;
+    showHitbox = false;
+    animationFrame = 0;
+    genome = new Genome(genomeInputSize, genomeOutputSize);
+    fitness = 0;
   }
 
   // Called every frame.
@@ -79,6 +88,10 @@ class Runner extends Entity {
     score += 1;
   }
 
+  void calculateFitness() {
+    fitness = score * score;
+  } 
+
   // Has the player go down.
   void toggleDown(boolean goDown) {
     if (yPos != 0 && goDown) {
@@ -95,5 +108,81 @@ class Runner extends Entity {
     if (yPos == 0) {
       dy = JUMP_VEL;
     }
+  }
+
+  // Get input for NEAT.
+  float[] readInput(ArrayList<Obstacle> obstacleList) {
+    // Inputs are as follows:
+    // 1. Distance from next obstacle.
+    // 2. yPos of obstacle.
+    // 3. Height of obstacle.
+    // 4. Width of obstacle.
+    // 5. Speed of obstacles.
+    // 6. yPos of player.
+
+    Obstacle nextObstacle = null;
+    float[] inputVals = new float[genomeInputSize];
+
+    for (Obstacle obstacle : obstacleList) {
+      if (obstacle.xPos - obstacle.w / 2 > xPos + w / 2) {
+        nextObstacle = obstacle;
+        break;
+      }
+    }
+
+    if (nextObstacle != null) {
+      inputVals[0] = nextObstacle.xPos / SCREENWIDTH;
+      inputVals[1] = nextObstacle.yPos;
+      inputVals[2] = nextObstacle.h;
+      inputVals[3] = nextObstacle.w;
+      inputVals[4] = speed;
+    } else {
+      for (int i = 0; i < 5; i++) { 
+        inputVals[i] = 0;
+      }
+    }
+    inputVals[5] = yPos;
+
+    return inputVals;
+  }
+
+  // The fun part. The player feeds data through the neural network to decide what to do.
+  void decide(float[] inputVals) {
+    float max = 0;
+    int decisionIndex = 5;
+
+    float[] decisions = genome.feedForward(inputVals);
+
+    for (int i = 0; i < genomeOutputSize; i++) {
+      if (decisions[i] > max) {
+        max = decisions[i];
+        decisionIndex = i;
+      }
+    }
+
+    switch (decisionIndex) {
+      case 0: // Don't do anything.
+        toggleDown(false); // Cancel crouch in case we are crouching.
+        break;
+      case 1: // Jump
+        jump();
+        break;
+      case 2: // Crouch
+        toggleDown(true);
+        break;
+      default:
+        throw new Error("Invalid decision.");
+    }
+  }
+  
+  // Does genome crossover between this Runner and another runner to make a child runner.
+  Runner crossover(Runner other, Random r) {
+    Runner child = new Runner();
+    child.genome = genome.crossover(other.genome, r);
+    return child;
+  }
+
+  int compareTo(Runner other) {
+    return (int) fitness - (int) other.fitness;
   }
 }
