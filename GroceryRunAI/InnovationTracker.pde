@@ -17,4 +17,8 @@ class InnovationTracker {
 
     connection.innovation = connectionInnovation.get(connection);
   }
+
+  int size() {
+    return connectionInnovation.size();
+  }
 }

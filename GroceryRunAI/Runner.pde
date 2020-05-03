@@ -4,14 +4,16 @@ import java.lang.Comparable;
 class Runner extends Entity implements Comparable<Runner> {
   final static float def_gravity = -1.2;
   int score;
+  int genNum; // The generation this runner belongs to
   float gravity;
   boolean down; // Player is pressing down key.
+  boolean alive; // Player is alive.
 
   int animationFrame; // For animation.
 
   // For NEAT algorithm.
   final int genomeInputSize = 6;
-  final int genomeOutputSize = 3; // 3 options
+  final int genomeOutputSize = 2; // 3 options
   Genome genome;
   float fitness;
   
@@ -25,16 +27,19 @@ class Runner extends Entity implements Comparable<Runner> {
     yPos = 0;
     dy = 0;
     gravity = def_gravity;
+    alive = true;
     down = false;
     showHitbox = false;
     animationFrame = 0;
     genome = new Genome(genomeInputSize, genomeOutputSize);
     fitness = 0;
+    genNum = 0;
   }
 
   // Called every frame.
-  void update() {
+  void update(ArrayList<Obstacle> obstacleList) {
     updateCounters();
+    checkCollisions(obstacleList);
     move();
   }
  
@@ -70,6 +75,15 @@ class Runner extends Entity implements Comparable<Runner> {
     super.show();
   }
 
+  // Check if player collides with any obstacle.
+  void checkCollisions(ArrayList<Obstacle> obstacleList) {
+    for (Obstacle obstacle : obstacleList) {
+      if (collidesWith(obstacle)) {
+        alive = false;
+      }
+    }
+  }
+
   // Moves Runner and checks for collisions.
   void move() {
     super.move();
@@ -88,7 +102,7 @@ class Runner extends Entity implements Comparable<Runner> {
     score += 1;
   }
 
-  void calculateFitness() {
+  void calcFitness() {
     fitness = score * score;
   } 
 
@@ -161,29 +175,45 @@ class Runner extends Entity implements Comparable<Runner> {
     }
 
     switch (decisionIndex) {
-      case 0: // Don't do anything.
-        toggleDown(false); // Cancel crouch in case we are crouching.
-        break;
-      case 1: // Jump
+      case 0: // Jump
         jump();
         break;
-      case 2: // Crouch
+      case 1: // Crouch
         toggleDown(true);
         break;
-      default:
-        throw new Error("Invalid decision.");
+      default: // Max is less than 0 so don't do anything.
+        toggleDown(false); // Disable in case we are crouching.
+        break;
     }
   }
   
   // Does genome crossover between this Runner and another runner to make a child runner.
   Runner crossover(Runner other, Random r) {
     Runner child = new Runner();
+    System.out.println("CROSSING OVER");
     child.genome = genome.crossover(other.genome, r);
-    child.generateTopologicalNetwork();
+    System.out.println("FINISHED CROSSING OVER");
+    child.genome.generateTopologicalNetwork();
     return child;
   }
 
+  // Creates a copy of this runner.
+  Runner copy() {
+    Runner copy = new Runner();
+    copy.genome = genome.copy();
+    copy.fitness = fitness;
+    copy.genome.generateTopologicalNetwork();
+    copy.genNum = genNum;
+    return copy;
+  }
+
   int compareTo(Runner other) {
-    return (int) fitness - (int) other.fitness;
+    if (fitness > other.fitness) {
+      return 1;
+    } else if (fitness < other.fitness) {
+      return -1;
+    } else {
+      return 0;
+    }
   }
 }

@@ -39,4 +39,12 @@ class Connection {
 
     return false;
   }
+  
+  int hashCode() {
+    return inNode.label * inNode.label + outNode.label;
+  }
+  
+  String toString() {
+    return "Connection from " + inNode.label + " to " + outNode.label + ". Weight: " + weight + ". Innovation: " + innovation;
+  }
 }

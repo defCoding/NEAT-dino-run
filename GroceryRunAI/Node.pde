@@ -7,6 +7,7 @@ class Node {
 
   Node(int label) {
     this.label = label;
+    depth = 0;
   }
 
   float activate() {

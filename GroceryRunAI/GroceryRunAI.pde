@@ -10,6 +10,7 @@ final float JUMP_VEL = 13;
 final int OBSTACLE_INTERVAL = 60;
 final float MAX_SPEED = 100;
 final float ACCELERATION = .5;
+final float STARTING_SPEED = 11;
 
 // Sprites
 PImage regCart1;
@@ -27,9 +28,8 @@ Random rand = new Random();
 int obstacleTimer = 0;
 int randInterval = rand.nextInt(30); // Added to obstacle interval to vary spawn times.
 float speed = 11;
-boolean gameOver = false;
 
-Runner player;
+Population pop;
 ArrayList<Obstacle> obstacleList;
 
 void setup() {
@@ -49,9 +49,9 @@ void setup() {
   largeObstacles = sprite_sheet.get(238, 3, 339, 46);
   flyingObstacle = sprite_sheet.get(134, 12, 41, 28);
   
-  player = new Runner();
-  player.showHitbox = true;
+  pop = new Population(500);
   obstacleList = new ArrayList<Obstacle>();
+  pop.setObstacleList(obstacleList);
 
   // Setup Window
   size(900, 400);
@@ -60,12 +60,14 @@ void setup() {
 
 // Called every frame.
 void draw() {
-  if (!gameOver) {
-    drawBackground();
-    player.move();
-    player.show();
+  drawBackground();
+  if (!pop.isDead()) {
     updateObstacles();
-    gameOver = checkCollisions();
+    pop.updateAliveRunners();
+  } else {
+    System.out.println("Preparing new Generation.");
+    pop.commenceEvolution();
+    resetGame();
   }
 }
 
@@ -112,16 +114,6 @@ void showObstacles() {
   }
 }
 
-// Check if player collides with any obstacle.
-boolean checkCollisions() {
-  for (Obstacle obstacle : obstacleList) {
-    if (player.collidesWith(obstacle)) {
-      return true;
-    }
-  }
-
-  return false;
-}
 
 void drawBackground() {
   background(255);
@@ -130,23 +122,9 @@ void drawBackground() {
   line(0, SCREENHEIGHT - GROUNDHEIGHT - 15, width, SCREENHEIGHT - GROUNDHEIGHT - 15);
 }
 
-void keyPressed() {
-  switch (key) {
-    case 'w':
-      player.jump();
-      break;
-    case 's':
-      player.toggleDown(true);
-      break;
-    default:
-  }
-}
-
-void keyReleased() {
-  switch (key) {
-    case 's':
-      player.toggleDown(false);
-      break;
-    default:
-  }
+void resetGame() {
+  obstacleList.clear();
+  speed = STARTING_SPEED;
+  obstacleTimer = 0;
+  randInterval = rand.nextInt(30);
 }

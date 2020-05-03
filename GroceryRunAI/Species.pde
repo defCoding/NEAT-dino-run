@@ -1,6 +1,7 @@
 import java.util.Collections;
+import java.lang.Comparable;
 
-class Species {
+class Species implements Comparable<Species> {
   // Constant values.
   static final float disjCoeff = 1;
   static final float weightCoeff = 0.4;
@@ -9,6 +10,7 @@ class Species {
   ArrayList<Runner> runnerList;
   Runner fittestAgent;
   float bestFitness;
+  float avgFitness;
   int staleFactor; // Number of generations without improvement.
   boolean isSorted; // Whether or not runnerList has been sorted.
 
@@ -22,6 +24,7 @@ class Species {
 
   // Starts species with one agent.
   Species(Runner agent) {
+    runnerList = new ArrayList<Runner>();
     runnerList.add(agent);
     fittestAgent = agent;
     bestFitness = agent.fitness;
@@ -34,14 +37,14 @@ class Species {
     runnerList.add(agent);
   }
 
-  float getAverageFitness() {
+  void setAvgFitness() {
     float sum = 0;
 
     for (Runner runner : runnerList) {
       sum += runner.fitness;
     }
 
-    return sum / runnerList.size();
+    avgFitness = sum / runnerList.size();
   }
   
   // Page 110 talks about killing off the lowest performing members of the population, but does
@@ -201,17 +204,19 @@ class Species {
 
   // Shares fitness among members of a species to avoid culling unique members. This equation can
   // be found on page 110 (2).
-  void shareFitness(ArrayList<Runner> population) {
+  void shareFitness() {
     for (Runner speciesMember : runnerList) { 
-      float sharingTotal = 0;
-      // Do the sigma equation in the denominator.
-      for (Runner runner : population) {
-        if (calcIncompatibility(speciesMember.genome, runner.genome) <= compatibilityThreshold) {
-          sharingTotal += 1;
-        } 
-      }
+      speciesMember.fitness /= runnerList.size();
+    }
+  }
 
-      speciesMember.fitness /= sharingTotal;
+  int compareTo(Species other) {
+    if (bestFitness > other.bestFitness) {
+      return 1;
+    } else if (bestFitness < other.bestFitness) {
+      return -1;
+    } else {
+      return 0;
     }
   }
 }

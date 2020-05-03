@@ -6,6 +6,7 @@ class Genome {
   int inputSize, outputSize;
   Node biasNode; // Needed to evolve XORS.
   ArrayList<Node> neuralNetwork; // So that we don't recalculate every time we want to feedForward.
+  int totalLayers;
 
   Genome(int inputSize, int outputSize) {
     this.inputSize = inputSize;
@@ -30,6 +31,7 @@ class Genome {
     biasNode = new Node(inputSize + outputSize);
     biasNode.depth = 0;
     nodeList.add(biasNode);
+    totalLayers = 2;
   }
 
   // This is for crossover genomes, that shouldn't fill up the lists automatically
@@ -52,6 +54,7 @@ class Genome {
       nodeA = nodeList.get(r.nextInt(nodeList.size()));
       nodeB = nodeList.get(r.nextInt(nodeList.size()));
     } while (isInvalidNewConnection(nodeA, nodeB));
+    
 
     // Input connects to hidden/output, and hidden connects to output.
     // If nodeB should connect to nodeA, then reverse is set to true.
@@ -62,7 +65,7 @@ class Genome {
     // Weight should be between -1 and 1.
     Connection newConnection = new Connection(inNode, outNode, r.nextFloat() * 2.0 - 1.0, 0);
     innovationTracker.setInnovationNumber(newConnection);
-     
+
     connectionList.add(newConnection);
   }
 
@@ -79,7 +82,7 @@ class Genome {
     // for a connection that isn't using the bias node.
     do {
       oldConnection = connectionList.get(r.nextInt(connectionList.size()));
-    } while (oldConnection.inNode.label == biasNode.label);
+    } while (oldConnection.inNode.label == biasNode.label && connectionList.size() > 1);
     
     Node inNode = oldConnection.inNode;
     Node outNode = oldConnection.outNode;
@@ -117,6 +120,7 @@ class Genome {
           node.depth++;
         }
       }
+      totalLayers++;
     }
   }
 
@@ -148,23 +152,22 @@ class Genome {
   // Check if network is fully connected.
   boolean isFullyConnected() {
     int maxConnections = 0; // Total amount of possible connections in the provided network.
-    Map<Integer, Integer> layerSizeMap = new HashMap<Integer, Integer>(); // Maps layer to number of nodes in layer.
+    int[] layerSizeMap = new int[totalLayers];
 
     for (Node node : nodeList) {
-      int newCount = layerSizeMap.containsKey(node.depth) ? layerSizeMap.get(node.depth) + 1 : 1;
-      layerSizeMap.put(node.depth, newCount);
+      layerSizeMap[node.depth] += 1;
     }
 
 
     // Calculate total possible connections.
-    for (int i = 0; i < layerSizeMap.size() - 1; i++) {
+    for (int i = 0; i < totalLayers - 1; i++) {
       int potentialNodes = 0; // All potential nodes in front of layer i.
-      for (int j = i + 1; j < layerSizeMap.size(); j++) {
-        potentialNodes += layerSizeMap.get(j);
+      for (int j = i + 1; j < totalLayers; j++) {
+        potentialNodes += totalLayers;
       }
 
       // Every node in layer i can connect to the potential nodes.
-      maxConnections += layerSizeMap.get(i) * potentialNodes;
+      maxConnections += totalLayers * potentialNodes;
     }
 
     return maxConnections == connectionList.size();
@@ -199,6 +202,7 @@ class Genome {
     Genome child = new Genome();
     child.inputSize = inputSize;
     child.outputSize = outputSize;
+    child.totalLayers = totalLayers;
 
     // Maps a parent node to the copy in the child node. It's a little hackey, but I can't think of a better way at the moment.
     Map<Node, Node> parentToChild = new HashMap<Node, Node>();
@@ -279,14 +283,10 @@ class Genome {
     // Clear network.
     neuralNetwork = new ArrayList<Node>();
 
-    // Find maximum depth.
-    int maxDepth = 0;
-    for (Node node : nodeList) {
-      maxDepth = Math.max(maxDepth, node.depth);
-    }
-
-    // Topological sort. There is definitely a better way time complexity wise to do this.
-    for (int i = 0; i <= maxDepth; i++) {
+    // Topological sort.
+    System.out.println("Total Nodes to generate network for: " + nodeList.size());
+    System.out.println("Layers: " + totalLayers);
+    for (int i = 0; i < totalLayers; i++) {
       for (Node node : nodeList) {
         if (node.depth == i) {
           neuralNetwork.add(node);
@@ -300,6 +300,7 @@ class Genome {
     Genome copy = new Genome();
     copy.inputSize = inputSize;
     copy.outputSize = outputSize;
+    copy.totalLayers = totalLayers;
 
     Map<Node, Node> parentToCopy = new HashMap<Node, Node>();
 
