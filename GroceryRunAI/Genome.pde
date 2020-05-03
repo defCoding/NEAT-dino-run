@@ -5,12 +5,14 @@ class Genome {
   ArrayList<Node> nodeList;
   int inputSize, outputSize;
   Node biasNode; // Needed to evolve XORS.
+  ArrayList<Node> neuralNetwork; // So that we don't recalculate every time we want to feedForward.
 
   Genome(int inputSize, int outputSize) {
     this.inputSize = inputSize;
     this.outputSize = outputSize;
     connectionList = new ArrayList<Connection>();
     nodeList = new ArrayList<Node>();
+    neuralNetwork = new ArrayList<Node>();
 
     for (int i = 0; i < inputSize; i++) {
       Node n = new Node(i);
@@ -249,9 +251,7 @@ class Genome {
     }
     biasNode.outputVal = 1; // Bias node output is 1.
 
-    ArrayList<Node> network = getTopologicalNetwork();
-
-    for (Node node : network) {
+    for (Node node : neuralNetwork) {
       float nodeOutput = node.activate();
       for (Connection connection : connectionList) {
         if (connection.inNode.label == node.label) {
@@ -275,8 +275,9 @@ class Genome {
   }
 
   // List nodes in order in which they should be activated (used for feedForward).
-  ArrayList<Node> getTopologicalNetwork() {
-    ArrayList<Node> network = new ArrayList<Node>();
+  void generateTopologicalNetwork() {
+    // Clear network.
+    neuralNetwork = new ArrayList<Node>();
 
     // Find maximum depth.
     int maxDepth = 0;
@@ -288,12 +289,10 @@ class Genome {
     for (int i = 0; i <= maxDepth; i++) {
       for (Node node : nodeList) {
         if (node.depth == i) {
-          network.add(node);
+          neuralNetwork.add(node);
         }
       }
     }
-    
-    return network;
   }
 
   // Clones this genome.

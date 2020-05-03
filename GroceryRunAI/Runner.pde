@@ -179,6 +179,7 @@ class Runner extends Entity implements Comparable<Runner> {
   Runner crossover(Runner other, Random r) {
     Runner child = new Runner();
     child.genome = genome.crossover(other.genome, r);
+    child.generateTopologicalNetwork();
     return child;
   }
 
