@@ -9,7 +9,7 @@ class InnovationTracker {
     connectionInnovation = new HashMap<Connection, Integer>();
     nextInnovationNumber = 0;
   }
-
+  
   void setInnovationNumber(Connection connection) {
     if (!connectionInnovation.containsKey(connection)) {
       connectionInnovation.put(connection, nextInnovationNumber++);

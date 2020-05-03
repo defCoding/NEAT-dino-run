@@ -190,11 +190,11 @@ class Genome {
       }
     }
 
-    if (r.nextFloat() < 0.1) {
+    if (r.nextFloat() < 0.15) {
       mutateAddConnection(innovationTracker, r);
     }
 
-    if (r.nextFloat() < 0.05) {
+    if (r.nextFloat() < 0.12) {
       mutateAddNode(innovationTracker, r);
     }
   }
@@ -218,6 +218,7 @@ class Genome {
 
       child.nodeList.add(copiedNode);
       parentToChild.put(node, copiedNode);
+      
     }
 
     // Add all connections from parents.
@@ -308,7 +309,7 @@ class Genome {
     // Copy over nodes.
     for (Node node : nodeList) {
       Node copiedNode = node.copy();
-      if (node.label == biasNode.label) {
+      if (copiedNode.label == biasNode.label) {
         copy.biasNode = copiedNode;
       }
 
@@ -320,6 +321,7 @@ class Genome {
     for (Connection connection : connectionList) {
       Connection copyConnection = new Connection(parentToCopy.get(connection.inNode), parentToCopy.get(connection.outNode), connection.weight, connection.innovation);
       copyConnection.enabled = connection.enabled;
+     
 
       copy.connectionList.add(copyConnection);
     }

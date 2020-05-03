@@ -13,7 +13,7 @@ class Runner extends Entity implements Comparable<Runner> {
 
   // For NEAT algorithm.
   final int genomeInputSize = 6;
-  final int genomeOutputSize = 2; // 3 options
+  final int genomeOutputSize = 3; // 3 options
   Genome genome;
   float fitness;
   
@@ -164,32 +164,29 @@ class Runner extends Entity implements Comparable<Runner> {
 
   // The fun part. The player feeds data through the neural network to decide what to do.
   void decide(float[] inputVals) {
-    float max = 0;
-    int decisionIndex = 5;
-
     float[] decisions = genome.feedForward(inputVals);
-    
+    float max = decisions[0];
+    int decisionIndex = 0;   
 
-    for (int i = 0; i < genomeOutputSize; i++) {
+    for (int i = 1; i < genomeOutputSize; i++) {
       if (decisions[i] > max) {
         max = decisions[i];
         decisionIndex = i;
       }
     }
 
-    if (max < 0.7) {
-      toggleDown(false);
-      return;
-    }
-
     switch (decisionIndex) {
-      case 0: // Jump
+      case 0: // Do nothing
+        toggleDown(false);
+        break;
+      case 1: // Jump
         jump();
         break;
-      case 1: // Crouch
+      case 2: // Crouch
         toggleDown(true);
         break;
       default:
+        throw new Error("Invalid decision.");
     }
   }
   

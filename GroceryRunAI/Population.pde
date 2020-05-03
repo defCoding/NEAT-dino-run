@@ -198,11 +198,12 @@ class Population {
     }
 
     pop = childPop;
+    isSorted = false;
     genNum++;
     for (Runner runner : pop) {
       runner.genome.generateTopologicalNetwork();
     }
-
+   
     lifespan = 0;
   }
 

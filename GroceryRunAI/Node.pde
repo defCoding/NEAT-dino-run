@@ -29,7 +29,7 @@ class Node {
   boolean equals(Object other) {
     if (other instanceof Node) {
       Node otherNode = (Node) other;
-      return label == otherNode.label && depth == otherNode.depth;
+      return label == otherNode.label;
     }
     return false;
   }
@@ -39,7 +39,7 @@ class Node {
   }
 
   Node copy() {
-    Node copy =new Node(label);
+    Node copy = new Node(label);
     copy.depth = depth;
     return copy;
   }
