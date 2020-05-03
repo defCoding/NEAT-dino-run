@@ -64,8 +64,9 @@ void draw() {
   if (!pop.isDead()) {
     updateObstacles();
     pop.updateAliveRunners();
-    if (pop.speciesList.size() > 0) {
-      pop.speciesList.get(0).runnerList.get(0).genome.drawGenome(50, 20, 300, 150);
+    
+    if (pop.fittestAgent != null) {
+      pop.fittestAgent.genome.drawGenome(50, 20, 300, 150);
     }
   } else {
     System.out.println("Preparing new Generation.");
