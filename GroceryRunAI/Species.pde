@@ -173,7 +173,7 @@ class Species implements Comparable<Species> {
 
       // crossover method requires that the fitter parent is the caller of the method
       Runner moreFit = parentA.fitness >= parentB.fitness ? parentA : parentB;
-      Runner lessFit = parentB.fitness < parentA.fitness ? parentB : parentA;
+      Runner lessFit = parentB.fitness <= parentA.fitness ? parentB : parentA;
 
       child = moreFit.crossover(lessFit, r);
     }

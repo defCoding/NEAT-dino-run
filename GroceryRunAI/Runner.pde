@@ -143,9 +143,11 @@ class Runner extends Entity implements Comparable<Runner> {
         break;
       }
     }
+    
+    
 
     if (nextObstacle != null) {
-      inputVals[0] = 1 / (nextObstacle.xPos / 10.0);
+      inputVals[0] = 1 / (nextObstacle.xPos / 12.0);
       inputVals[1] = nextObstacle.yPos;
       inputVals[2] = nextObstacle.h;
       inputVals[3] = nextObstacle.w;
@@ -166,6 +168,7 @@ class Runner extends Entity implements Comparable<Runner> {
     int decisionIndex = 5;
 
     float[] decisions = genome.feedForward(inputVals);
+    
 
     for (int i = 0; i < genomeOutputSize; i++) {
       if (decisions[i] > max) {
@@ -173,7 +176,7 @@ class Runner extends Entity implements Comparable<Runner> {
         decisionIndex = i;
       }
     }
-    
+
     if (max < 0.7) {
       toggleDown(false);
       return;
@@ -186,9 +189,7 @@ class Runner extends Entity implements Comparable<Runner> {
       case 1: // Crouch
         toggleDown(true);
         break;
-      default: // Max is less than 0 so don't do anything.
-        toggleDown(false); // Disable in case we are crouching.
-        break;
+      default:
     }
   }
   

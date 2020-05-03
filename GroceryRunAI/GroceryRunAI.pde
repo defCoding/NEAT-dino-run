@@ -138,10 +138,12 @@ void keyPressed() {
   switch (key) {
     case '+':
       FPS += 10;
+      frameRate(FPS);
       System.out.println("FPS: " + FPS);
       break;
     case '-':
       FPS -= 10;
+      frameRate(FPS);
       System.out.println("FPS: " + FPS);
       break;
     default:   

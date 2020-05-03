@@ -190,11 +190,11 @@ class Genome {
       }
     }
 
-    if (r.nextFloat() < 0.05) {
+    if (r.nextFloat() < 0.1) {
       mutateAddConnection(innovationTracker, r);
     }
 
-    if (r.nextFloat() < 0.03) {
+    if (r.nextFloat() < 0.05) {
       mutateAddNode(innovationTracker, r);
     }
   }
@@ -212,7 +212,7 @@ class Genome {
     // Child takes all nodes from more fit parent, including excess and disjoint genes.
     for (Node node : nodeList) {
       Node copiedNode = node.copy();
-      if (node.label == biasNode.label) {
+      if (copiedNode.label == biasNode.label) {
         child.biasNode = copiedNode;
       }
 
@@ -269,12 +269,13 @@ class Genome {
     // Get result from output layer.
     float[] outputVals = new float[outputSize];
     for (int i = 0; i < outputSize; i++) {
-      outputVals[i] = nodeList.get(inputSize + 1).outputVal;
+      outputVals[i] = nodeList.get(inputSize + i).outputVal;
     }
 
     // Reset nodes.
     for (Node node : nodeList) {
       node.inputVal = 0;
+      node.outputVal = 0;
     }
 
     return outputVals;

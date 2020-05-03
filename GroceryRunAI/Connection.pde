@@ -18,7 +18,7 @@ class Connection {
   // Mutates the weight.
   void mutate(Random r) {
     // According to MIT paper, 90% chance of uniform perturbance, and 10% chance of
-    // completely random weight.
+    // completely random weight.    
     if (r.nextFloat() < 0.9) {
       weight += r.nextGaussian() / 50; // Keep it small.
 
