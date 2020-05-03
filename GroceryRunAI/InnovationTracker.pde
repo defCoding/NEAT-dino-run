@@ -2,27 +2,45 @@ import java.util.Map;
 import java.util.HashMap;
 
 class InnovationTracker {
-  Map<Connection, Integer> connectionInnovation;
+  ArrayList<ConnectionLog> connectionLogTracker;
   int nextInnovationNumber; // The next innovation number to assign.
 
   InnovationTracker() {
-    connectionInnovation = new HashMap<Connection, Integer>();
+    connectionLogTracker = new ArrayList<ConnectionLog>();
     nextInnovationNumber = 0;
   }
   
   void reset() {
-    connectionInnovation.clear();
+    connectionLogTracker.clear();
+    nextInnovationNumber = 0;
   }
-  
-  void setInnovationNumber(Connection connection) {
-    if (!connectionInnovation.containsKey(connection)) {
-      connectionInnovation.put(connection, nextInnovationNumber++);
+ 
+  void setInnovationNumber(Genome genome, Connection connection) {
+    boolean found = false;
+
+    for (ConnectionLog connectionLog : connectionLogTracker) {
+      if (connectionLog.alleleMatches(genome, connection)) {
+        found = true;
+        connection.innovation = connectionLog.innovation;
+        break;
+      }
     }
 
-    connection.innovation = connectionInnovation.get(connection);
+    if (!found) {
+      connection.innovation = nextInnovationNumber++;
+      ArrayList<Integer> innovationLog = new ArrayList<Integer>();
+
+      for (Connection gConnection : genome.connectionList) {
+        innovationLog.add(gConnection.innovation);
+      }
+
+      ConnectionLog newLog = new ConnectionLog(connection.inNode.label, connection.outNode.label, connection.innovation, innovationLog);
+
+      connectionLogTracker.add(newLog);
+    }
   }
 
   int size() {
-    return connectionInnovation.size();
+    return connectionLogTracker.size();
   }
 }

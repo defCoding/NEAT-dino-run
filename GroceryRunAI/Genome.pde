@@ -66,7 +66,7 @@ class Genome {
     // Create Connection.
     // Weight should be between -1 and 1.
     Connection newConnection = new Connection(inNode, outNode, r.nextFloat() * 2.0 - 1.0, 0);
-    innovationTracker.setInnovationNumber(newConnection);
+    innovationTracker.setInnovationNumber(this, newConnection);
 
     connectionList.add(newConnection);
   }
@@ -98,7 +98,7 @@ class Genome {
     // Add new connection.
     // Connect old inNode to newNode with weight of 1.
     Connection newConnection = new Connection(inNode, newNode, 1, 0);
-    innovationTracker.setInnovationNumber(newConnection);
+    innovationTracker.setInnovationNumber(this, newConnection);
     connectionList.add(newConnection);
 
     // Update depth of newNode.
@@ -106,12 +106,12 @@ class Genome {
 
     // Connect newNode to old outNode with weight of original connection.
     newConnection = new Connection(newNode, outNode, oldConnection.weight, 0);
-    innovationTracker.setInnovationNumber(newConnection);
+    innovationTracker.setInnovationNumber(this, newConnection);
     connectionList.add(newConnection);
 
     // Connect bias to newNode with weight 0.
     newConnection = new Connection(biasNode, newNode, 0, 0);
-    innovationTracker.setInnovationNumber(newConnection);
+    innovationTracker.setInnovationNumber(this, newConnection);
     connectionList.add(newConnection);
 
     // See if a new layer needs to be updated with the creation of this new node.

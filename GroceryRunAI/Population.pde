@@ -209,7 +209,7 @@ class Population {
     }
    
     lifespan = 0;
-    innovationTracker.reset();
+    //innovationTracker.reset();
   }
 
   // Removes species that can no longer reproduce due to poor performance.
