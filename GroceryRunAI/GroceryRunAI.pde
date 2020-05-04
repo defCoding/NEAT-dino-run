@@ -7,8 +7,8 @@ final float SCREENHEIGHT = 900;
 final float SCREENWIDTH = 1600;
 final float GROUNDHEIGHT = 245;
 final float JUMP_VEL = 14;
-final int OBSTACLE_INTERVAL = 35;
-final float MAX_SPEED = 150;
+final int OBSTACLE_INTERVAL = 25;
+final float MAX_SPEED = 200;
 final float ACCELERATION = 1;
 final float STARTING_SPEED = 9;
 
