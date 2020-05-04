@@ -21,7 +21,7 @@ class Obstacle extends Entity {
         w = sprite.width;
         h = sprite.height;
       } else {
-        size = r.nextInt(2); // Group size of 1 - 2.
+        size = r.nextInt(3); // Group size of 1 - 3.
         sprite = largeObstacles.get(0, 0, 23 + size * 26, 46);
         w = sprite.width;
         h = sprite.height;
@@ -32,7 +32,7 @@ class Obstacle extends Entity {
       w = sprite.width;
       h = sprite.height;
 
-      height = r.nextInt(2); // Three possible heights for flying obstacles.
+      height = r.nextInt(3); // Three possible heights for flying obstacles.
       
       switch (height) {
         case 0:

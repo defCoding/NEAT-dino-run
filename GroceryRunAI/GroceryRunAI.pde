@@ -6,11 +6,11 @@ import java.util.Random;
 final float SCREENHEIGHT = 400;
 final float SCREENWIDTH = 1200;
 final float GROUNDHEIGHT = 20;
-final float JUMP_VEL = 13;
+final float JUMP_VEL = 14;
 final int OBSTACLE_INTERVAL = 35;
 final float MAX_SPEED = 100;
 final float ACCELERATION = .1;
-final float STARTING_SPEED = 11;
+final float STARTING_SPEED = 9;
 
 int FPS = 60;
 // Sprites
@@ -28,7 +28,7 @@ PImage flyingObstacle;
 Random rand = new Random();
 int obstacleTimer = 0;
 int randInterval = rand.nextInt(25); // Added to obstacle interval to vary spawn times.
-float speed = 11;
+float speed = 9;
 
 Population pop;
 ArrayList<Obstacle> obstacleList;

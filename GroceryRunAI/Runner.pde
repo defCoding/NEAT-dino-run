@@ -153,6 +153,7 @@ class Runner extends Entity implements Comparable<Runner> {
          if (i < obstacleList.size() - 1) {
            nextNextObstacle = obstacleList.get(i + 1);
          }
+         break;
       }
     }
     
