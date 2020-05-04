@@ -3,13 +3,14 @@ import java.lang.Comparable;
 import java.util.Arrays;
 
 class Runner extends Entity implements Comparable<Runner> {
-  final static float def_gravity = -1.2;
+  final static float def_gravity = -1.05;
   int score;
   int genNum; // The generation this runner belongs to
   float gravity;
   boolean down; // Player is pressing down key.
   boolean alive; // Player is alive.
   int animationFrame; // For animation.
+  boolean isManual;
 
   // For NEAT algorithm.
   final int genomeInputSize = 8;
@@ -35,6 +36,7 @@ class Runner extends Entity implements Comparable<Runner> {
     genome = new Genome(genomeInputSize, genomeOutputSize);
     fitness = 0;
     genNum = 0;
+    isManual = false;
   }
 
   // Called every frame.
@@ -73,7 +75,12 @@ class Runner extends Entity implements Comparable<Runner> {
     h = sprite.height;
     animationFrame = (animationFrame + 1) % 4;
 
+    if (isManual) {
+      tint(0, 255, 0);
+    }
+
     super.show();
+    noTint();
   }
 
   // Check if player collides with any obstacle.
@@ -241,5 +248,14 @@ class Runner extends Entity implements Comparable<Runner> {
     } else {
       return 0;
     }
+  }
+
+  void reset() {
+    score = 0;
+    alive = true;
+    down = false;
+    yPos = 0;
+    dy = 0;
+    sprite = regCart1;
   }
 }

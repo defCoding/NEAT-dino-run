@@ -6,7 +6,7 @@ import java.util.Random;
 final float SCREENHEIGHT = 675;
 final float SCREENWIDTH = 1200;
 final float GROUNDHEIGHT = 20;
-final float JUMP_VEL = 14;
+final float JUMP_VEL = 13;
 final int OBSTACLE_INTERVAL = 35;
 final float MAX_SPEED = 150;
 final float ACCELERATION = 1;
@@ -31,6 +31,7 @@ int randInterval = rand.nextInt(25); // Added to obstacle interval to vary spawn
 float speed = 9;
 
 Population pop;
+Runner player; // So the player can compete.
 ArrayList<Obstacle> obstacleList;
 PFont font, boldFont;
 
@@ -52,6 +53,8 @@ void setup() {
   flyingObstacle = sprite_sheet.get(134, 12, 41, 28);
   
   pop = new Population(1000);
+  player = new Runner();
+  player.isManual = true;
   obstacleList = new ArrayList<Obstacle>();
   pop.setObstacleList(obstacleList);
 
@@ -66,12 +69,14 @@ void setup() {
 // Called every frame.
 void draw() {
   drawBackground();
-  if (!pop.isDead()) {
+  if (!pop.isDead() || player.alive) {
     updateObstacles();
     pop.updateAliveRunners();
+    player.update();
+    player.show();
   } else {
-    System.out.println("Preparing new Generation.");
     pop.commenceEvolution();
+    player.reset();
     resetGame();
   }
 }
@@ -160,6 +165,7 @@ void drawBackground() {
   text("Score: " + score, 20, 665);
   text(String.format("Speed: %.2f", speed), 150, 665);
   text("Alive " + alive, 20, 500);
+  text("You are the green cart! Compete with the AI! W to jump, E to small hop, S to go down!", 300, 665);
 
   pop.drawGraph(675, 10, 500, 450);
 }
@@ -174,17 +180,33 @@ void resetGame() {
 
 void keyPressed() {
   switch (key) {
+    case 'w':
+      player.jump(false);
+      break;
+    case 'e':
+      player.jump(true);
+      break;
+    case 's':
+      player.toggleDown(true);
+      break;
     case '+':
       FPS += 10;
       frameRate(FPS);
-      System.out.println("FPS: " + FPS);
       break;
     case '-':
       FPS -= 10;
       FPS = Math.max(FPS, 30);
       frameRate(FPS);
-      System.out.println("FPS: " + FPS);
       break;
     default:   
+  }
+}
+
+void keyReleased() {
+  switch (key) {
+    case 's':
+      player.toggleDown(false);
+      break;
+    default:
   }
 }
