@@ -243,7 +243,7 @@ class Population {
       if (runner.alive) {
         textFont(boldFont);
         textSize(18);
-        text("Some Alive Player's Neural Network", 100, 155);
+        text("Random Alive Agent's Neural Network", 200, 150);
         textFont(font);
         runner.genome.drawGenome(200, 185, 600, 300);
         break;
