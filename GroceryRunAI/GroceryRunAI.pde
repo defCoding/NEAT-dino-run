@@ -6,7 +6,7 @@ import java.util.Random;
 final float SCREENHEIGHT = 675;
 final float SCREENWIDTH = 1200;
 final float GROUNDHEIGHT = 20;
-final float JUMP_VEL = 13;
+final float JUMP_VEL = 14;
 final int OBSTACLE_INTERVAL = 35;
 final float MAX_SPEED = 150;
 final float ACCELERATION = 1;
@@ -72,8 +72,10 @@ void draw() {
   if (!pop.isDead() || player.alive) {
     updateObstacles();
     pop.updateAliveRunners();
-    player.update();
-    player.show();
+    if (player.alive) {
+      player.update();
+      player.show();
+    }
   } else {
     pop.commenceEvolution();
     player.reset();
@@ -155,10 +157,14 @@ void drawBackground() {
   int score = 0;
   int alive = 0;
   // Ok this is terrible, but sue me. I could not care less about time complexity rn.
-  for (Runner runner : pop.pop) {
-    if (runner.alive) {
-      score = runner.score;
-      alive++;
+  if (player.alive) {
+    score = player.score;
+  } else {
+    for (Runner runner : pop.pop) {
+      if (runner.alive) {
+        score = runner.score;
+        alive++;
+      }
     }
   }
 

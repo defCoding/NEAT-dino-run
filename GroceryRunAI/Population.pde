@@ -210,7 +210,6 @@ class Population {
       }
     }
 
-    println(maxSize);
     // Add more children if need be.
     while (childPop.size() < maxSize) {
       childPop.add(speciesList.get(0).generateChild(innovationTracker, r));

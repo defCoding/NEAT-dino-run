@@ -3,7 +3,7 @@ import java.lang.Comparable;
 import java.util.Arrays;
 
 class Runner extends Entity implements Comparable<Runner> {
-  final static float def_gravity = -1.05;
+  final static float def_gravity = -1.2;
   int score;
   int genNum; // The generation this runner belongs to
   float gravity;
