@@ -36,7 +36,9 @@ For more information on the algorithm and its implementations, you can find the 
 This particular algorithm was implemented with the assistance of the paper above, Hydrozoa's HydroNeat implementation, and YouTube channel CodeBullet. The links can be found below.
 
 [Hydrozoa's Channel](https://www.youtube.com/channel/UCQ3I9UG_zvcQOs6tTPyyz_A "Hydrozoa's Channel")
+
 [HydroNeat Github](https://github.com/hydrozoa-yt/hydroneat "[HydroNeat Github]")
+
 [CodeBullet Channel](https://www.youtube.com/channel/UC0e3QhIYukixgh5VVpKHH9Q "CodeBullet Channel")
 
 
