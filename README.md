@@ -70,3 +70,9 @@ Adding an additional bit, Flying?, improved results significantly. Flying? was s
 ![](https://i.imgur.com/zUe0nIg.png)
 
 As we can see, there is less stagnation in growth due to the ability to navigate the flying obstacles.
+
+<br />
+
+Here is a video demonstration of the AI in action:
+
+[![Youtube Video](https://img.youtube.com/vi/5eMnGvzL1DA/0.jpg)](https://youtu.be/5eMnGvzL1DA)
