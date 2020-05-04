@@ -6,9 +6,9 @@ class Population {
   Runner fittestAgent;
   int highScore;
   int genNum;
-  int lifespan; // How long the population has been alive.
   boolean isSorted; // Species list is sorted.
   Random r;
+  int maxSize;
   ArrayList<Obstacle> obstacleList;
 
   InnovationTracker innovationTracker;
@@ -27,9 +27,9 @@ class Population {
     fittestAgent = null;
     highScore = 0;
     genNum = 0;
-    lifespan = 0;
     isSorted = true;
     innovationTracker = new InnovationTracker();
+    maxSize = size;
     
     for (int i = 0; i < size; i++) {
       Runner newRunner = new Runner();
@@ -46,7 +46,6 @@ class Population {
   
   // Has all alive runner decide what to do and move.
   void updateAliveRunners() {
-    lifespan++;
 
     for (Runner runner : pop) {
       if (runner.alive) {
@@ -115,9 +114,10 @@ class Population {
 
   // Remove all species who have not improved in 15 generations (page 111)
   void removeStaleSpecies() {
-    // At least save 2 so that we can keep growing the population.
+    // At least save some so that we can keep growing the population.
+    sortAllSpecies();
     for (int i = 4; i < speciesList.size(); i++) {
-      if (speciesList.get(i).staleFactor >= 18) {
+      if (speciesList.get(i).staleFactor >= 15) {
         speciesList.remove(i--);
       }
     }
@@ -184,8 +184,29 @@ class Population {
     float sumAvg = sumAvgFitness();
     ArrayList<Runner> childPop = new ArrayList<Runner>();
 
+    // Interspecies mating.
+    if (r.nextFloat() < 0.001) {
+      Species species1 = speciesList.get(r.nextInt(speciesList.size()));
+
+      Species species2;
+      do {
+        species2 = speciesList.get(r.nextInt(speciesList.size()));
+      } while (species1 == species2 && speciesList.size() > 1);
+
+      if (species1.runnerList.size() > 0 && species2.runnerList.size() > 0) {
+        Runner r1 = species1.runnerList.get(0);
+        Runner r2 = species2.runnerList.get(0);
+
+        Runner moreFit = r1.fitness >= r1.fitness ? r1 : r2;
+        Runner lessFit = r2.fitness <= r1.fitness ? r2 : r1;
+
+        childPop.add(moreFit.crossover(lessFit, r));
+      }
+    }
+
     for (Species species : speciesList) {
-      childPop.add(species.fittestAgent.copy());
+      // Paper said only if there were more than 5 networks, but I'm finding that setting it like that makes it perform worse.
+      childPop.add(species.fittestAgent.copy());   
 
       // Number of children from species is relative to its fitness score and the total fitness score.
       int numChildren = floor(species.avgFitness / sumAvg * pop.size()) - 1;
@@ -196,19 +217,18 @@ class Population {
     }
 
     // Add more children if need be.
-    while (childPop.size() < pop.size()) {
+    while (childPop.size() < maxSize) {
       childPop.add(speciesList.get(0).generateChild(innovationTracker, r));
     }
     
     System.out.printf("Generation: %d | Pop Size: %d | # Mutations: %d | # Species: %d\n", genNum, pop.size(), innovationTracker.size(), speciesList.size());
-    pop = childPop;
+    pop = (ArrayList) childPop.clone();
     isSorted = false;
     genNum++;
     for (Runner runner : pop) {
       runner.genome.generateTopologicalNetwork();
     }
    
-    lifespan = 0;
     //innovationTracker.reset();
   }
 

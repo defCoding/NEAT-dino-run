@@ -190,11 +190,11 @@ class Genome {
       }
     }
 
-    if (r.nextFloat() < 0.1) {
+    if (r.nextFloat() < .25) {
       mutateAddConnection(innovationTracker, r);
     }
 
-    if (r.nextFloat() < 0.01) {
+    if (r.nextFloat() < 0.03) {
       mutateAddNode(innovationTracker, r);
     }
   }
@@ -361,7 +361,7 @@ class Genome {
         if (connection.weight > 0) {
           stroke(255, 0, 0);
         } else {
-          stroke(0, 0, 255);
+          stroke(0, 255, 0);
         }
         
         if (!connection.enabled) {
@@ -388,13 +388,11 @@ class Genome {
       // Draw labels.
       textSize(10);
       textAlign(LEFT);
-      int input = 7;
-      int output = nodeList.size() - 4;
-      String inputStrings[] = {"Distance from obstacle.", "yPos of obstacle.", "Height of obstacle.", "Width of obstacle.", "Obstacle speed.", "Gap between next two.", "yPos of player."};
+      String inputStrings[] = {"Distance from obstacle.", "yPos of obstacle.", "Height of obstacle.", "Width of obstacle.", "Obstacle speed.", "Gap between next two.", "Flying?", "yPos of player."};
       String outputStrings[] = {"Crouch.", "Small jump.", "Regular Jump"};
       for (int i = 0; i < inputSize; i++) {
         PVector pos = nodeToLocation.get(nodeList.get(i));
-        text(inputStrings[i], pos.x - 130, pos.y);
+        text(inputStrings[i], pos.x - 150, pos.y);
       }
 
       for (int i = 0; i < outputSize; i++) {
@@ -403,6 +401,6 @@ class Genome {
       }
 
       PVector biasPos = nodeToLocation.get(biasNode);
-      text("Bias", biasPos.x - 130, biasPos.y);
+      text("Bias", biasPos.x - 150, biasPos.y);
   }
 }

@@ -29,9 +29,10 @@ Random rand = new Random();
 int obstacleTimer = 0;
 int randInterval = rand.nextInt(25); // Added to obstacle interval to vary spawn times.
 float speed = 11;
+GA genAlg;
 
-Population pop;
 ArrayList<Obstacle> obstacleList;
+ArrayList<Runner> runnerList;
 
 void setup() {
   // Load sprite sheet.
@@ -50,9 +51,9 @@ void setup() {
   largeObstacles = sprite_sheet.get(238, 3, 339, 46);
   flyingObstacle = sprite_sheet.get(134, 12, 41, 28);
   
-  pop = new Population(1000);
   obstacleList = new ArrayList<Obstacle>();
-  pop.setObstacleList(obstacleList);
+  genAlg = new GA(11, 100, .1, .2);
+  genAlg.setPlayers();
 
   // Setup Window
   size(900, 400);
@@ -64,12 +65,15 @@ void setup() {
 // Called every frame.
 void draw() {
   drawBackground();
-  if (!pop.isDead()) {
+
+
+  if (!genAlg.done()) {
     updateObstacles();
-    pop.updateAliveRunners();
+    genAlg.updatePlayers();
   } else {
-    System.out.println("Preparing new Generation.");
-    pop.commenceEvolution();
+    println("Ended tournament.");
+    genAlg.doGeneticAlgoStuff();
+    genAlg.setPlayers();
     resetGame();
   }
 }
@@ -120,17 +124,18 @@ void showObstacles() {
 
 void drawBackground() {
   background(255);
+
   stroke(0);
-  strokeWeight(1);
+
   line(0, SCREENHEIGHT - GROUNDHEIGHT - 15, width, SCREENHEIGHT - GROUNDHEIGHT - 15);
-  pop.drawAMember();
+
   textSize(12);
-  text("Pop Size: " + pop.pop.size(), 750, 20);
-  text("Generation: " + pop.genNum, 750, 40);
-  text("Species: " + pop.speciesList.size(), 750, 60);
-  text("Best Score: " + pop.highScore, 750, 80);
-  
-  text("FPS: " + FPS, 840, 390);
+  fill(0);
+  textAlign(LEFT);
+  text("Gen: " + genAlg.gen, 500, 30);
+  text("Tournament: " + genAlg.tournaments, 500, 40);
+  text("FPS: " + FPS, 500, 60);
+
 }
 
 void resetGame() {

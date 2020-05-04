@@ -2,20 +2,15 @@ import java.lang.Error;
 import java.lang.Comparable;
 import java.util.Arrays;
 
-class Runner extends Entity implements Comparable<Runner> {
+class Runner extends Entity {
   final static float def_gravity = -1.2;
   int score;
-  int genNum; // The generation this runner belongs to
   float gravity;
   boolean down; // Player is pressing down key.
   boolean alive; // Player is alive.
   int animationFrame; // For animation.
 
-  // For NEAT algorithm.
-  final int genomeInputSize = 8;
-  final int genomeOutputSize = 3; // 3 options
-  Genome genome;
-  float fitness;
+  Perceptron perceptronLayers;
   
   Runner() {
     score = 0;
@@ -31,10 +26,19 @@ class Runner extends Entity implements Comparable<Runner> {
     down = false;
     showHitbox = false;
     targeted = false;
+
     animationFrame = 0;
-    genome = new Genome(genomeInputSize, genomeOutputSize);
-    fitness = 0;
-    genNum = 0;
+  }
+
+  void reset() {
+    alive = true;
+    down = false;
+    gravity = def_gravity;
+    animationFrame = 0;
+    dx = 0;
+    dy = 0;
+    yPos = 0;
+    score = 0;
   }
 
   // Called every frame.
@@ -103,10 +107,6 @@ class Runner extends Entity implements Comparable<Runner> {
     score += 1;
   }
 
-  void calcFitness() {
-    fitness = score * score;
-  } 
-
   // Has the player go down.
   void toggleDown(boolean goDown) {
     if (yPos != 0 && goDown) {
@@ -140,7 +140,7 @@ class Runner extends Entity implements Comparable<Runner> {
     // 6. Interval of obstacle after.
     // 7. Is the obstacle flying?
     // 8. yPos of player.
-    float[] inputVals = new float[genomeInputSize];
+    float[] inputVals = new float[8];
 
     Obstacle nextObstacle = null;
     Obstacle nextNextObstacle = null;
@@ -183,62 +183,20 @@ class Runner extends Entity implements Comparable<Runner> {
 
   // The fun part. The player feeds data through the neural network to decide what to do.
   void decide(float[] inputVals) {
-    float[] decisions = genome.feedForward(inputVals);
-    float max = decisions[0];
-    int decisionIndex = 0;   
-
-    for (int i = 1; i < genomeOutputSize; i++) {
-      if (decisions[i] > max) {
-        max = decisions[i];
-        decisionIndex = i;
-      }
-    }
-    
-    if (max < 0.7) {
-      toggleDown(false);
-      return;
-    }
+    int decisionIndex = perceptronLayers.getIndex(inputVals);
 
     switch (decisionIndex) {
       case 0: // Crouch
-        toggleDown(true);
+        toggleDown(false);
         break;
-      case 1: // Small Hop
-        jump(true);
+      case 1: // Regular Jump
+        toggleDown(true);
         break;
       case 2: // Regular Jump
         jump(false);
         break;
       default:
         throw new Error("Invalid decision.");
-    }
-  }
-  
-  // Does genome crossover between this Runner and another runner to make a child runner.
-  Runner crossover(Runner other, Random r) {
-    Runner child = new Runner();
-    child.genome = genome.crossover(other.genome, r);
-    child.genome.generateTopologicalNetwork();
-    return child;
-  }
-
-  // Creates a copy of this runner.
-  Runner copy() {
-    Runner copy = new Runner();
-    copy.genome = genome.copy();
-    copy.fitness = fitness;
-    copy.genome.generateTopologicalNetwork();
-    copy.genNum = genNum;
-    return copy;
-  }
-
-  int compareTo(Runner other) {
-    if (fitness > other.fitness) {
-      return 1;
-    } else if (fitness < other.fitness) {
-      return -1;
-    } else {
-      return 0;
     }
   }
 }

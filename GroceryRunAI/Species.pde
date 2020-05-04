@@ -4,7 +4,7 @@ import java.lang.Comparable;
 class Species implements Comparable<Species> {
   // Constant values.
   static final float disjCoeff = 1;
-  static final float weightCoeff = 0.5;
+  static final float weightCoeff = 0.6;
   static final float compatibilityThreshold = 3.0;
 
   ArrayList<Runner> runnerList;
@@ -162,15 +162,12 @@ class Species implements Comparable<Species> {
   // recombination.
   Runner generateChild(InnovationTracker innovationTracker, Random r) {
     Runner child;
-    if (r.nextFloat() < 0.25) {
+    if (r.nextFloat() < 0.2) {
       child = pickParentWeighted(r);
     } else {
       Runner parentA, parentB;
       parentA = pickParentWeighted(r);
-
-      do {
-        parentB = pickParentWeighted(r);
-      } while (runnerList.size() > 2 && parentA == parentB);
+      parentB = pickParentWeighted(r);
 
       // crossover method requires that the fitter parent is the caller of the method
       Runner moreFit = parentA.fitness >= parentB.fitness ? parentA : parentB;
