@@ -3,13 +3,13 @@ import java.util.Arrays;
 import java.util.Random;
 
 // Set constants
-final float SCREENHEIGHT = 400;
+final float SCREENHEIGHT = 675;
 final float SCREENWIDTH = 1200;
 final float GROUNDHEIGHT = 20;
 final float JUMP_VEL = 14;
 final int OBSTACLE_INTERVAL = 35;
-final float MAX_SPEED = 100;
-final float ACCELERATION = .1;
+final float MAX_SPEED = 150;
+final float ACCELERATION = 1;
 final float STARTING_SPEED = 9;
 
 int FPS = 60;
@@ -32,6 +32,7 @@ float speed = 9;
 
 Population pop;
 ArrayList<Obstacle> obstacleList;
+PFont font, boldFont;
 
 void setup() {
   // Load sprite sheet.
@@ -54,10 +55,11 @@ void setup() {
   obstacleList = new ArrayList<Obstacle>();
   pop.setObstacleList(obstacleList);
 
+  font = createFont("Source Code Pro", 32);
+  boldFont = createFont("Source Code Pro Bold", 32);
   // Setup Window
-  size(900, 400);
+  size(1200, 675);
   frameRate(FPS);
-  PFont font = createFont("Source Code Pro", 32);
   textFont(font);
 }
 
@@ -124,13 +126,42 @@ void drawBackground() {
   strokeWeight(1);
   line(0, SCREENHEIGHT - GROUNDHEIGHT - 15, width, SCREENHEIGHT - GROUNDHEIGHT - 15);
   pop.drawAMember();
+  textSize(20);
+  text("Pop Size: " + pop.pop.size(), 10, 25);
+  text("Generation: " + pop.genNum, 10, 55);
+  text("Species: " + pop.speciesList.size(), 10, 85);
+  text("Best Score: " + pop.highScore, 10, 115);
   textSize(12);
-  text("Pop Size: " + pop.pop.size(), 750, 20);
-  text("Generation: " + pop.genNum, 750, 40);
-  text("Species: " + pop.speciesList.size(), 750, 60);
-  text("Best Score: " + pop.highScore, 750, 80);
-  
-  text("FPS: " + FPS, 840, 390);
+  text("FPS: " + FPS, 1100, 665);
+  fill(0, 171, 57);
+  text("Green is a positive connection.", 300, 25);
+  fill(194, 0, 0);
+  text("Red is a negative connection.", 300, 45);
+  fill(79, 79, 79);
+  text("Grey is a disabled connection.", 300, 65);
+  fill(0);
+  textFont(boldFont);
+  textSize(12);
+  text("Thickness represents weight of connection.", 300, 85);
+  textFont(font);
+  textSize(12);
+
+
+  int score = 0;
+  int alive = 0;
+  // Ok this is terrible, but sue me. I could not care less about time complexity rn.
+  for (Runner runner : pop.pop) {
+    if (runner.alive) {
+      score = runner.score;
+      alive++;
+    }
+  }
+
+  text("Score: " + score, 20, 665);
+  text(String.format("Speed: %.2f", speed), 150, 665);
+  text("Alive " + alive, 20, 500);
+
+  pop.drawGraph(675, 10, 500, 450);
 }
 
 void resetGame() {

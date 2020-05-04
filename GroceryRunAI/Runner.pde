@@ -161,7 +161,7 @@ class Runner extends Entity implements Comparable<Runner> {
     if (nextObstacle != null) {
       nextObstacle.targeted = true;
       inputVals[0] = 1 - nextObstacle.xPos / SCREENWIDTH;
-      inputVals[1] = 1 - nextObstacle.yPos / SCREENHEIGHT;
+      inputVals[1] = nextObstacle.yPos / SCREENHEIGHT;
       inputVals[2] = nextObstacle.h / SCREENHEIGHT;
       inputVals[3] = nextObstacle.w / SCREENWIDTH;
       inputVals[4] = speed / MAX_SPEED;
@@ -171,7 +171,7 @@ class Runner extends Entity implements Comparable<Runner> {
       } else {
         inputVals[5] = 0;
       }
-      inputVals[6] = nextObstacle.flying ? 1 : 0;
+      inputVals[6] = nextObstacle.flying && nextObstacle.yPos != 0 ? 1 : 0;
     } else {
       for (int i = 0; i < 7; i++) { 
         inputVals[i] = 0;

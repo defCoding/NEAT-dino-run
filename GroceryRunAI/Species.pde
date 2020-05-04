@@ -212,7 +212,7 @@ class Species implements Comparable<Species> {
       cumulativeSum += runner.fitness;
 
       if (cumulativeSum >= threshold) {
-        return runner;
+        return runner.copy();
       }
     }
 

@@ -13,7 +13,7 @@ class Population {
 
   InnovationTracker innovationTracker;
   ArrayList<Species> speciesList;
-  ArrayList<Runner> bestOfGenerations;
+  ArrayList<Integer> bestOfGenerations; // For graphing purposes
 
 
 
@@ -22,7 +22,7 @@ class Population {
     r = new Random();
     pop = new ArrayList<Runner>();
     speciesList = new ArrayList<Species>();
-    bestOfGenerations = new ArrayList<Runner>();
+    bestOfGenerations = new ArrayList<Integer>();
     obstacleList = new ArrayList<Obstacle>();
     fittestAgent = null;
     highScore = 0;
@@ -76,13 +76,13 @@ class Population {
       Runner bestRightNow = speciesList.get(0).runnerList.get(0);
       bestRightNow.genNum = genNum;
   
+      // bestOfGenerations.add(bestRightNow.score);
+
       if (bestRightNow.score > highScore) {
-        bestOfGenerations.add(bestRightNow);
-        System.out.println("Old High Score: " + highScore);
-        System.out.println("New High Score: " + bestRightNow.score);
         highScore = bestRightNow.score;
         fittestAgent = bestRightNow;
       }
+      bestOfGenerations.add(highScore);
     }
   }
 
@@ -133,14 +133,6 @@ class Population {
     }
   }
 
-  // Removes all but top 5 species. Needed when no improvement is happening.
-  void smite() {
-    int numToKill = speciesList.size() - 5;
-    for (int i = 0; i < numToKill; i++) {
-      speciesList.remove(speciesList.size() - 1);
-    }
-  }
-
   // Calculates fitness of all members of population so that we can do genetic algorithm.
   void calcFitness() {
     for (Runner runner : pop) {
@@ -185,6 +177,7 @@ class Population {
     ArrayList<Runner> childPop = new ArrayList<Runner>();
 
     // Interspecies mating.
+    /*
     if (r.nextFloat() < 0.001) {
       Species species1 = speciesList.get(r.nextInt(speciesList.size()));
 
@@ -203,26 +196,27 @@ class Population {
         childPop.add(moreFit.crossover(lessFit, r));
       }
     }
+    */
 
     for (Species species : speciesList) {
       // Paper said only if there were more than 5 networks, but I'm finding that setting it like that makes it perform worse.
       childPop.add(species.fittestAgent.copy());   
 
       // Number of children from species is relative to its fitness score and the total fitness score.
-      int numChildren = floor(species.avgFitness / sumAvg * pop.size()) - 1;
+      int numChildren = floor(species.avgFitness / sumAvg * maxSize) - 1;
     
       for (int i = 0; i < numChildren; i++) {
         childPop.add(species.generateChild(innovationTracker, r));
       }
     }
 
+    println(maxSize);
     // Add more children if need be.
     while (childPop.size() < maxSize) {
       childPop.add(speciesList.get(0).generateChild(innovationTracker, r));
     }
-    
-    System.out.printf("Generation: %d | Pop Size: %d | # Mutations: %d | # Species: %d\n", genNum, pop.size(), innovationTracker.size(), speciesList.size());
-    pop = (ArrayList) childPop.clone();
+
+    pop = childPop;
     isSorted = false;
     genNum++;
     for (Runner runner : pop) {
@@ -248,11 +242,48 @@ class Population {
   void drawAMember() {
     for (Runner runner : pop) {
       if (runner.alive) {
-        textSize(12);
-        text("Some Alive Player's Neural Network", 100, 20);
-        runner.genome.drawGenome(180, 40, 350, 200);
+        textFont(boldFont);
+        textSize(18);
+        text("Some Alive Player's Neural Network", 100, 155);
+        textFont(font);
+        runner.genome.drawGenome(200, 185, 400, 300);
         break;
       }
     }
+  }
+
+  void drawGraph(int x, int y, int w, int h) {
+    // Draw graph edges.
+    stroke(0);
+    strokeWeight(1);
+    textSize(12);
+    line(x, y, x, y + h);
+    line(x, y + h, x + w, y + h);
+    // Label graph edges.
+    text("Generations", x + w / 2 - 30, y + h + 10);
+    pushMatrix();
+    translate(x - 15, y + h / 2 + 30);
+    rotate(-HALF_PI);
+    text("Best Score", 0, 0);
+    popMatrix();
+
+    if (bestOfGenerations.size() > 1) {
+      float yMax = (float) Math.max(Collections.max(bestOfGenerations), 1000);
+      
+      for (int i = 0; i < bestOfGenerations.size() - 1; i++) {
+        float startX, startY, stopX, stopY;
+        float score = (float) bestOfGenerations.get(i);
+        float nextScore = (float) bestOfGenerations.get(i + 1);
+
+        startX = x + map(i, 0, bestOfGenerations.size() - 1, 0f, (float) w);
+        startY = y + h - map(score, 0, yMax, 0f, (float) h);
+        stopX = x + map(i + 1, 0, bestOfGenerations.size() - 1, 0f, (float) w);
+        stopY = y + h - map(nextScore, 0, yMax, 0f, (float) h);
+
+        stroke(0, 0, 255);
+        line(startX, startY, stopX, stopY);
+      }
+    }
+      
   }
 }
