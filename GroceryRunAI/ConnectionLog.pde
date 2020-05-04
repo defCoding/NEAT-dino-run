@@ -27,4 +27,3 @@ class ConnectionLog {
     return false;
   }
 }
-

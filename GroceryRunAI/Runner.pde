@@ -10,7 +10,6 @@ class Runner extends Entity implements Comparable<Runner> {
   boolean down; // Player is pressing down key.
   boolean alive; // Player is alive.
   int animationFrame; // For animation.
-  boolean isManual;
 
   // For NEAT algorithm.
   final int genomeInputSize = 8;
@@ -36,7 +35,6 @@ class Runner extends Entity implements Comparable<Runner> {
     genome = new Genome(genomeInputSize, genomeOutputSize);
     fitness = 0;
     genNum = 0;
-    isManual = false;
   }
 
   // Called every frame.
@@ -75,12 +73,7 @@ class Runner extends Entity implements Comparable<Runner> {
     h = sprite.height;
     animationFrame = (animationFrame + 1) % 4;
 
-    if (isManual) {
-      tint(0, 255, 0);
-    }
-
     super.show();
-    noTint();
   }
 
   // Check if player collides with any obstacle.

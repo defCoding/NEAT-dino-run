@@ -3,9 +3,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 // Set constants
-final float SCREENHEIGHT = 675;
-final float SCREENWIDTH = 1200;
-final float GROUNDHEIGHT = 20;
+final float SCREENHEIGHT = 900;
+final float SCREENWIDTH = 1600;
+final float GROUNDHEIGHT = 245;
 final float JUMP_VEL = 14;
 final int OBSTACLE_INTERVAL = 35;
 final float MAX_SPEED = 150;
@@ -54,14 +54,13 @@ void setup() {
   
   pop = new Population(1000);
   player = new Runner();
-  player.isManual = true;
   obstacleList = new ArrayList<Obstacle>();
   pop.setObstacleList(obstacleList);
 
   font = createFont("Source Code Pro", 32);
   boldFont = createFont("Source Code Pro Bold", 32);
   // Setup Window
-  size(1200, 675);
+  size(1600, 900);
   frameRate(FPS);
   textFont(font);
 }
@@ -71,11 +70,23 @@ void draw() {
   drawBackground();
   if (!pop.isDead() || player.alive) {
     updateObstacles();
+    showObstacles();
     pop.updateAliveRunners();
+    
+    pushMatrix();
+    translate(0, 225);
+    stroke(0);
+    line(0, SCREENHEIGHT - GROUNDHEIGHT - 15, width, SCREENHEIGHT - GROUNDHEIGHT - 15);
+    // Listen, I just want to get this done. I do not care about time complexity at the moment.
+    for (Obstacle obstacle : obstacleList) {
+      obstacle.showHitbox = false;
+    }
+    showObstacles();
     if (player.alive) {
       player.update();
       player.show();
     }
+    popMatrix();
   } else {
     pop.commenceEvolution();
     player.reset();
@@ -115,14 +126,13 @@ void moveObstacles() {
       speed = Math.min(speed + ACCELERATION, MAX_SPEED);
     }
   }
-
-  showObstacles();
 }
 
 // Draws all obstacles.
 void showObstacles() {
   for (Obstacle obstacle : obstacleList) {
     obstacle.show();
+    obstacle.showHitbox = true;
   }
 }
 
@@ -139,7 +149,8 @@ void drawBackground() {
   text("Species: " + pop.speciesList.size(), 10, 85);
   text("Best Score: " + pop.highScore, 10, 115);
   textSize(12);
-  text("FPS: " + FPS, 1100, 665);
+  text("(+ to speed up, - to slow down) FPS: " + FPS, 1370, 885);
+  textSize(14);
   fill(0, 171, 57);
   text("Green is a positive connection.", 300, 25);
   fill(194, 0, 0);
@@ -148,10 +159,9 @@ void drawBackground() {
   text("Grey is a disabled connection.", 300, 65);
   fill(0);
   textFont(boldFont);
-  textSize(12);
+  textSize(14);
   text("Thickness represents weight of connection.", 300, 85);
   textFont(font);
-  textSize(12);
 
 
   int score = 0;
@@ -159,21 +169,20 @@ void drawBackground() {
   // Ok this is terrible, but sue me. I could not care less about time complexity rn.
   if (player.alive) {
     score = player.score;
-  } else {
-    for (Runner runner : pop.pop) {
-      if (runner.alive) {
-        score = runner.score;
-        alive++;
-      }
+  }
+  for (Runner runner : pop.pop) {
+    if (runner.alive) {
+      score = runner.score;
+      alive++;
     }
   }
-
-  text("Score: " + score, 20, 665);
-  text(String.format("Speed: %.2f", speed), 150, 665);
+  textSize(15);
   text("Alive " + alive, 20, 500);
-  text("You are the green cart! Compete with the AI! W to jump, E to small hop, S to go down!", 300, 665);
+  text("You are the cart below! Compete with the AI! W to jump, E to small hop, S to go down!", 300, 695);
+  text("Score: " + score, 20, 695);
+  text(String.format("Speed: %.2f", speed), 150, 695);
 
-  pop.drawGraph(675, 10, 500, 450);
+  pop.drawGraph(900, 10, 675, 450);
 }
 
 void resetGame() {
@@ -197,6 +206,7 @@ void keyPressed() {
       break;
     case '+':
       FPS += 10;
+      FPS = Math.min(FPS, 240);
       frameRate(FPS);
       break;
     case '-':

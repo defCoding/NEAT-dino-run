@@ -245,7 +245,7 @@ class Population {
         textSize(18);
         text("Some Alive Player's Neural Network", 100, 155);
         textFont(font);
-        runner.genome.drawGenome(200, 185, 400, 300);
+        runner.genome.drawGenome(200, 185, 600, 300);
         break;
       }
     }
