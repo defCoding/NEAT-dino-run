@@ -183,7 +183,7 @@ void drawBackground() {
   }
   textSize(15);
   text("Alive " + alive, 20, 500);
-  text("You are the cart below! Compete with the AI! W to jump, E to small hop, S to go down!", 500, 695);
+  text("You are the cart below! Compete with the AI! W to jump, E to small hop, S to go down!", 540, 695);
   text("Score: " + score, 20, 695);
   text(String.format("Speed: %.2f", speed), 150, 695);
   text(String.format("Obstacle Interval: %.2f", obstacle_interval), 280, 695);
