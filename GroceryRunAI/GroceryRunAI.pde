@@ -7,10 +7,12 @@ final float SCREENHEIGHT = 900;
 final float SCREENWIDTH = 1600;
 final float GROUNDHEIGHT = 245;
 final float JUMP_VEL = 14;
-final int OBSTACLE_INTERVAL = 25;
+final float MIN_OBSTACLE_INTERVAL = 15;
+final float OBSTACLE_INTERVAL_STEP = .1;
 final float MAX_SPEED = 200;
 final float ACCELERATION = 1;
 final float STARTING_SPEED = 9;
+final float STARTING_OBSTACLE_INTERVAL = 45;
 
 int FPS = 60;
 // Sprites
@@ -27,8 +29,9 @@ PImage flyingObstacle;
 // Variables
 Random rand = new Random();
 int obstacleTimer = 0;
-int randInterval = rand.nextInt(25); // Added to obstacle interval to vary spawn times.
+int randInterval = rand.nextInt(15); // Added to obstacle interval to vary spawn times.
 float speed = 9;
+float obstacle_interval = 45;
 
 Population pop;
 Runner player; // So the player can compete.
@@ -99,14 +102,15 @@ void updateObstacles() {
   obstacleTimer++;
 
   // Check if we can spawn obstacle.
-  if (obstacleTimer > OBSTACLE_INTERVAL + randInterval) {
+  if (obstacleTimer > obstacle_interval + randInterval) {
     // If so, generate obstacle, and reset timer and recreate a random
     // interval to add to default interval.
     Obstacle obs = new Obstacle(rand);
     obs.showHitbox = true;
     obstacleList.add(obs);
     obstacleTimer = 0;
-    randInterval = rand.nextInt(30);
+    
+    randInterval = rand.nextInt(15);
   }
 
   moveObstacles();
@@ -124,6 +128,7 @@ void moveObstacles() {
 
       // If obstacle is removed, the game should get harder.
       speed = Math.min(speed + ACCELERATION, MAX_SPEED);
+      obstacle_interval = Math.max(MIN_OBSTACLE_INTERVAL, obstacle_interval - OBSTACLE_INTERVAL_STEP);
     }
   }
 }
@@ -178,9 +183,10 @@ void drawBackground() {
   }
   textSize(15);
   text("Alive " + alive, 20, 500);
-  text("You are the cart below! Compete with the AI! W to jump, E to small hop, S to go down!", 300, 695);
+  text("You are the cart below! Compete with the AI! W to jump, E to small hop, S to go down!", 500, 695);
   text("Score: " + score, 20, 695);
   text(String.format("Speed: %.2f", speed), 150, 695);
+  text(String.format("Obstacle Interval: %.2f", obstacle_interval), 280, 695);
 
   pop.drawGraph(900, 10, 675, 450);
 }
@@ -188,6 +194,7 @@ void drawBackground() {
 void resetGame() {
   obstacleList.clear();
   speed = STARTING_SPEED;
+  obstacle_interval = STARTING_OBSTACLE_INTERVAL;
   obstacleTimer = 0;
   randInterval = rand.nextInt(30);
 }

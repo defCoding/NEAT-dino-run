@@ -259,7 +259,7 @@ class Population {
     line(x, y, x, y + h);
     line(x, y + h, x + w, y + h);
     // Label graph edges.
-    text("Generations", x + w / 2 - 30, y + h + 10);
+    text("Generations", x + w / 2 - 30, y + h + 20);
     pushMatrix();
     translate(x - 15, y + h / 2 + 30);
     rotate(-HALF_PI);
@@ -268,6 +268,8 @@ class Population {
 
     if (bestOfGenerations.size() > 1) {
       float yMax = (float) Math.max(Collections.max(bestOfGenerations), 1000);
+      int intervalLength = Math.max(1, floor(pow(10, floor(log(bestOfGenerations.size() - 1) / log(10)))));
+      
       
       for (int i = 0; i < bestOfGenerations.size() - 1; i++) {
         float startX, startY, stopX, stopY;
@@ -281,6 +283,16 @@ class Population {
 
         stroke(0, 0, 255);
         line(startX, startY, stopX, stopY);
+        
+        
+        // Make marker drawing.
+        stroke(0);
+        if ((i + 1) % intervalLength == 0) {
+          line(stopX, y + h + 4, stopX, y + h - 4);
+          text("" + ((i + 1) / intervalLength) * intervalLength, stopX - (i + 1 > 9 ? 4 : 3), y + h + 8);
+        } else {
+          line(stopX, y + h + 2, stopX, y + h - 2);
+        }
       }
     }
       
