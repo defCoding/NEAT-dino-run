@@ -171,7 +171,7 @@ class Runner extends Entity implements Comparable<Runner> {
       } else {
         inputVals[5] = 0;
       }
-      inputVals[6] = nextObstacle.flying && nextObstacle.yPos != 0 ? 1 : 0;
+      inputVals[6] = nextObstacle.flying && nextObstacle.yPos != 0 ? 0 : 0;
     } else {
       for (int i = 0; i < 7; i++) { 
         inputVals[i] = 0;
